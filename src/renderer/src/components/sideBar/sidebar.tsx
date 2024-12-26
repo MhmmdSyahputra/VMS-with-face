@@ -88,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
         </nav>
       </div>
       <div className={`${classes.content} col`}>
-        <div className="container-fluid p-4 pt-5">{children}</div>
+        <div className="container-fluid px-4">{children}</div>
       </div>
     </div>
   )

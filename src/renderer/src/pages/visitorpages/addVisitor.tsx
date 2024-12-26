@@ -4,7 +4,7 @@ import React from 'react'
 export const AddVisitorPage: React.FC = () => {
   return (
     <>
-      <Paper shadow="lg" radius="md" p={20}>
+      <Paper shadow="lg" radius="md" p={20} h={'85vh'}>
         <Grid mb={10}>
           <Grid.Col span={12}>
             <Text fz="lg" fw={600}>
