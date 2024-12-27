@@ -80,7 +80,7 @@ export const HomeTable: React.FC = () => {
   return (
     <>
       <Paper
-        shadow="lg"
+        shadow="md"
         radius="lg"
         p={20}
         h="100%"
