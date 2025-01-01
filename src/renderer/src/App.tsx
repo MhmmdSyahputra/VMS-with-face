@@ -1,5 +1,5 @@
 import { Sidebar } from './components/sideBar/sidebar'
-import { AddVisitorPage, HomePage } from './pages'
+import { AddVisitorPage, EmployeePage, HomePage } from './pages'
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom'
 import { NavbarMinimal } from './pages/testing'
 import { MantineProvider } from '@mantine/core'
@@ -17,6 +17,7 @@ function App(): JSX.Element {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/visitor/add" element={<AddVisitorPage />} />
+              <Route path="/employee" element={<EmployeePage />} />
               <Route path="/tes" element={<NavbarMinimal />} />
             </Routes>
           </Sidebar>

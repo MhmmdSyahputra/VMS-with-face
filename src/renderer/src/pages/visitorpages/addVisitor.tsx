@@ -115,9 +115,9 @@ export const AddVisitorPage: React.FC = () => {
 
   return (
     <>
-      <Grid grow gutter="xl" style={{ height: '85vh' }}>
+      <Grid grow gutter="xl" h={'85vh'}>
         <Grid.Col span={6}>
-          <Paper shadow="lg" radius="lg" p={20}>
+          <Paper shadow="lg" radius="lg" p={20} h={'85vh'}>
             <Input.Wrapper
               label="FULL NAME"
               withAsterisk

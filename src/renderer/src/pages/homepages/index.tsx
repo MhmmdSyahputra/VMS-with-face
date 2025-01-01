@@ -1,6 +1,6 @@
 import React from 'react'
-import { CardStatistik } from './component/cardStatistik'
-import { HomeTable } from './component/table'
+import { CardStatistik } from './components/cardStatistik'
+import { HomeTable } from './components/table'
 import { TbLogin, TbLogout, TbUser, TbUsersGroup } from 'react-icons/tb'
 import { Grid } from '@mantine/core'
 

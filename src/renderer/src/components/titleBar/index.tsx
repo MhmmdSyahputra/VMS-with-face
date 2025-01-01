@@ -19,10 +19,8 @@ import classes from './titleBar.module.css'
 import { TbCheck, TbX } from 'react-icons/tb'
 
 export const Titlebar: React.FC = () => {
-  const handleMinimize = (): void => window.electron.ipcRenderer.send('window:minimize')
-  const handleMaximize = (): void => window.electron.ipcRenderer.send('window:maximize')
-  const handleClose = (): void => window.electron.ipcRenderer.send('window:close')
-  const [opened, { open, close }] = useDisclosure(false)
+  const [openedConfig, { open: openConfig, close: closeConfig }] = useDisclosure(false)
+  const [openedConfirm, { open: openConfirm, close: closeConfirm }] = useDisclosure(false)
 
   const [deviceId, setDeviceId] = useState<string>('')
   const [dataConfig, setDataConfig] = useState({
@@ -37,6 +35,16 @@ export const Titlebar: React.FC = () => {
     type: 'success' | 'error'
     message: string
   } | null>(null)
+
+  const handleMinimize = (): void => window.electron.ipcRenderer.send('window:minimize')
+  const handleMaximize = (): void => window.electron.ipcRenderer.send('window:maximize')
+  const handleClose = (): void => {
+    openConfirm() // Buka modal konfirmasi sebelum menutup
+  }
+  const confirmClose = (): void => {
+    window.electron.ipcRenderer.send('window:close') // Lanjutkan menutup aplikasi
+    closeConfirm() // Tutup modal konfirmasi
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target
@@ -67,7 +75,7 @@ export const Titlebar: React.FC = () => {
     }
     localStorage.setItem('dataConfig', JSON.stringify(dataConfig))
     setShowNotification({ type: 'success', message: 'Konfigurasi berhasil disimpan!' })
-    close()
+    closeConfig()
   }
 
   useEffect(() => {
@@ -107,7 +115,7 @@ export const Titlebar: React.FC = () => {
     } else {
       setDataConfig(JSON.parse(existingConfig))
     }
-  }, [opened, open, close])
+  }, [openedConfig, openConfig, closeConfig])
 
   return (
     <Box bg="blue.8" className={classes.header}>
@@ -118,7 +126,7 @@ export const Titlebar: React.FC = () => {
           </Text>
           <Flex className={classes.buttons}>
             <Button
-              onClick={open}
+              onClick={openConfig}
               className="my-auto"
               leftSection={<FaGear />}
               size="compact-sm"
@@ -142,9 +150,9 @@ export const Titlebar: React.FC = () => {
       </header>
 
       <Modal
-        opened={opened}
+        opened={openedConfig}
         radius={'md'}
-        onClose={close}
+        onClose={closeConfig}
         size={'55rem'}
         title="Update Configuration"
         centered
@@ -237,6 +245,20 @@ export const Titlebar: React.FC = () => {
           {showNotification.message}
         </Notification>
       )}
+
+      {/* Modal Konfirmasi Close */}
+      <Modal opened={openedConfirm} onClose={closeConfirm} title="Confirmation?">
+        <Text>Do you want to exit the application?</Text>
+        <Divider my="md" />
+        <Flex justify="flex-end" gap="md">
+          <Button variant="default" onClick={closeConfirm}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={confirmClose}>
+            Yes
+          </Button>
+        </Flex>
+      </Modal>
     </Box>
   )
 }
