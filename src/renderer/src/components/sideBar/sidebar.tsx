@@ -12,8 +12,8 @@ import {
 } from 'react-icons/tb'
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core'
 import classes from './sidebar.module.css'
-import { Link } from 'react-router-dom'
-import Logo from './../../../../../resources/icon.png'
+import { useNavigate } from 'react-router-dom'
+import Logo from '@assets/icon.png'
 
 interface NavbarLinkProps {
   icon: typeof TbHome2
@@ -24,17 +24,24 @@ interface NavbarLinkProps {
 }
 
 function NavbarLink({ icon: Icon, label, active, to, onClick }: NavbarLinkProps): JSX.Element {
+  const navigate = useNavigate()
+  const handleClick = (): void => {
+    if (onClick) {
+      onClick()
+    }
+    if (to) {
+      navigate(to)
+    }
+  }
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
-      <Link to={to!} className={classes.link}>
-        <UnstyledButton
-          onClick={onClick}
-          className={`${classes.link}`}
-          data-active={active || undefined}
-        >
-          <Icon size={20} strokeWidth={1.5} />
-        </UnstyledButton>
-      </Link>
+      <UnstyledButton
+        onClick={handleClick}
+        className={`${classes.link}`}
+        data-active={active || undefined}
+      >
+        <Icon size={20} strokeWidth={1.5} />
+      </UnstyledButton>
     </Tooltip>
   )
 }
@@ -55,6 +62,7 @@ interface SidebarProps {
 
 // eslint-disable-next-line react/prop-types
 export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
+  const navigate = useNavigate()
   const [active, setActive] = useState(0)
 
   const links = mockdata.map((link, index) => (
@@ -66,6 +74,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
       onClick={() => setActive(index)}
     />
   ))
+
+  const logoutSession = (): void => {
+    navigate('/login')
+  }
 
   return (
     <div className="row g-1">
@@ -83,7 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
 
           <Stack justify="center" gap={0}>
             <NavbarLink icon={TbSwitchHorizontal} label="Change account" />
-            <NavbarLink icon={TbLogout} label="Logout" />
+            <NavbarLink icon={TbLogout} onClick={() => logoutSession()} label="Logout" />
           </Stack>
         </nav>
       </div>
