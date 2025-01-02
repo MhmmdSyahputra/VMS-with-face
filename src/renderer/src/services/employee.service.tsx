@@ -13,7 +13,7 @@ const EmployeeService = (): EmployeeService => {
   const getDetailEmployee = async (kode: string): Promise<IGetDetailEmplooye> => {
     try {
       const response: AxiosResponse<IGetDetailEmplooye> = await axios.post(
-        `${apiUrl}?tipe=checkDataMember&secretkey=${secretCode}`,
+        `${apiUrl}?secretkey=${secretCode}&tipe=checkDataMember`,
         { nokartu: kode }
       )
       return response.data

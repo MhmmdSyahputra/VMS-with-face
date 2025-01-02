@@ -18,26 +18,38 @@ import Webcam from 'react-webcam'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
 import ConfigService from '@renderer/services/config.service'
+import { IDataConfig } from '@renderer/interface/config.interface'
+import axios from 'axios'
+import VisitorService from '@renderer/services/visitor.service'
+import { notifications } from '@mantine/notifications'
 
 interface FormData {
-  name: string
-  phone: string
+  nama: string
+  telp: string
+  tanggal: string
   email: string
-  gender: string
-  com_visit: string
-  dest: string
+  sex: string
+  prshvisitor: string
+  nokartuakses: string
+  comp_visit: string
+  cp: string
 }
 
 export const AddVisitorPage: React.FC = () => {
   const configService = ConfigService()
+  const visitorService = VisitorService()
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    phone: '',
+    nama: '',
+    telp: '',
+    tanggal: '',
     email: '',
-    gender: 'MALE',
-    com_visit: '',
-    dest: ''
+    sex: '1',
+    prshvisitor: '',
+    nokartuakses: '',
+    comp_visit: '',
+    cp: ''
   })
+  const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
   const [dataDestination, setDataDestination] = useState<{ label: string; value: string }[]>([])
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null)
 
@@ -64,11 +76,12 @@ export const AddVisitorPage: React.FC = () => {
 
   const [errorDataConfig, setErrorDataConfig] = useState<{ [key: string]: string }>({})
   const [opened, { open, close }] = useDisclosure(false)
-  const [capturedImage, setCapturedImage] = useState<string | null>(null)
-  const [cropper, setCropper] = useState<Cropper | null>(null)
-  const [cropStatus, setCropperStatus] = useState<boolean>(false)
+  const [capturedImages, setCapturedImages] = useState<(string | null)[]>([null, null, null])
+  const [croppers, setCroppers] = useState<(Cropper | null)[]>([null, null, null])
+  const [cropStatuses, setCropStatuses] = useState<boolean[]>([false, false, false])
   const webcamRef = useRef<Webcam>(null)
-  const cropperRef = useRef<HTMLImageElement>(null)
+  const cropperRefs = useRef<(HTMLImageElement | null)[]>([null, null, null])
+  const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(null)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = e.target
@@ -79,27 +92,110 @@ export const AddVisitorPage: React.FC = () => {
     setErrorDataConfig((prevErrors) => ({ ...prevErrors, [name]: '' }))
   }
 
-  const handleSubmit = (): void => {
-    console.log('submit')
+  const handleSubmit = async (): Promise<void> => {
+    setLoadingSubmit(true)
+    const getConfig = localStorage.getItem('dataConfig')
+    const dataConfig: IDataConfig = JSON.parse(getConfig!)
+
+    const payloadData = new FormData()
+    for (let i = 0; i < capturedImages.length; i++) {
+      const image = capturedImages[i]
+      if (image !== null) {
+        try {
+          const response = await axios.get(image, { responseType: 'blob' })
+          const blob = response.data
+          const file = new File([blob], `foto${i + 1}.jpg`)
+          payloadData.append(`foto${i + 1}`, file)
+        } catch {
+          payloadData.append(`foto${i + 1}`, '')
+        }
+      }
+    }
+
+    payloadData.append('idkiosk', dataConfig.idKiosk)
+    payloadData.append('userid', '')
+    payloadData.append('tanggal', formData.tanggal!)
+    payloadData.append('nama', formData.nama)
+    payloadData.append('telp', formData.telp)
+    payloadData.append('email', formData.email)
+    payloadData.append('sex', '')
+    payloadData.append('prshvisitor', formData.prshvisitor)
+    // payloadData.append('idprsh', selectedDestination!.split(';')[0]!)
+    payloadData.append('namaprsh', '')
+    // payloadData.append('idlantai', selectedDestination!.split(';')[1]!)
+    payloadData.append('namalantai', '')
+    payloadData.append('cp', formData.cp)
+    payloadData.append('no', '')
+    payloadData.append('idalasan', selectedReason!)
+    payloadData.append('namaalasan', '')
+    payloadData.append('idakses', selectedTypeAccess!)
+    payloadData.append('nokartuakses', formData.nokartuakses)
+    payloadData.append('tipekunjungan', selectedTypeVisit!)
+    payloadData.append('waktuakhir', selectedTimeEnd!)
+
+    try {
+      const response = await visitorService.addVisitor(payloadData)
+
+      if (response.msgtext && response.msgtext.length > 0) {
+        notifications.show({
+          color: 'red',
+          position: 'top-right',
+          title: 'Gagal',
+          message: `${response.msgtext}`
+        })
+      }
+
+      if (response.valid === 1) {
+        console.log(response)
+      } else {
+        notifications.show({
+          color: 'red',
+          position: 'top-right',
+          title: 'Gagal',
+          message: `${response.msgtext}`
+        })
+      }
+    } catch (error) {
+      notifications.show({
+        color: 'red',
+        position: 'top-right',
+        title: 'Gagal',
+        message: `Terjadi kesalahan pada server!`
+      })
+    } finally {
+      setLoadingSubmit(false)
+    }
   }
 
   const capturePhoto = (): void => {
-    if (webcamRef.current) {
+    if (webcamRef.current !== null && currentImageIndex !== null) {
       const imageSrc = webcamRef.current.getScreenshot()
-      setCapturedImage(imageSrc)
+      const newImages = [...capturedImages]
+      newImages[currentImageIndex] = imageSrc
+      setCapturedImages(newImages)
       open()
     }
   }
 
   const retakePhoto = (): void => {
-    setCapturedImage(null)
-    open()
-    setCropperStatus(false)
+    if (currentImageIndex !== null) {
+      const newImages = [...capturedImages]
+      newImages[currentImageIndex] = null
+      setCapturedImages(newImages)
+      const newStatuses = [...cropStatuses]
+      newStatuses[currentImageIndex] = false
+      setCropStatuses(newStatuses)
+      open()
+    }
   }
 
   useEffect(() => {
-    if (capturedImage && cropperRef.current) {
-      const newCropper = new Cropper(cropperRef.current, {
+    if (
+      currentImageIndex !== null &&
+      capturedImages[currentImageIndex] &&
+      cropperRefs.current[currentImageIndex]
+    ) {
+      const newCropper = new Cropper(cropperRefs.current[currentImageIndex]!, {
         aspectRatio: 1,
         viewMode: 1,
         scalable: true,
@@ -107,22 +203,27 @@ export const AddVisitorPage: React.FC = () => {
         autoCropArea: 1,
         responsive: true
       })
-      setCropper(newCropper)
+      const newCroppers = [...croppers]
+      newCroppers[currentImageIndex] = newCropper
+      setCroppers(newCroppers)
     }
 
     return (): void => {
-      if (cropper) {
-        cropper.destroy()
-      }
+      croppers.forEach((cropper) => cropper?.destroy())
     }
-  }, [capturedImage])
+  }, [capturedImages, currentImageIndex])
 
   const handleCrop = (): void => {
-    if (cropper) {
-      const croppedImageUrl = cropper.getCroppedCanvas().toDataURL('image/jpeg')
-      setCapturedImage(croppedImageUrl)
+    if (currentImageIndex !== null && croppers[currentImageIndex]) {
+      const croppedImageUrl =
+        croppers[currentImageIndex]!.getCroppedCanvas().toDataURL('image/jpeg')
+      const newImages = [...capturedImages]
+      newImages[currentImageIndex] = croppedImageUrl
+      setCapturedImages(newImages)
+      const newStatuses = [...cropStatuses]
+      newStatuses[currentImageIndex] = true
+      setCropStatuses(newStatuses)
       close()
-      setCropperStatus(true)
     }
   }
 
@@ -185,11 +286,21 @@ export const AddVisitorPage: React.FC = () => {
     }
   }
 
+  const getDate = async (): Promise<void> => {
+    try {
+      const response = await configService.getDate()
+      setFormData({ ...formData, tanggal: response.tanggal.split(' ')[0] })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     getDestination()
     getReason()
     getTypeAccess()
     getTimeEnd()
+    getDate()
   }, [])
 
   return (
@@ -205,15 +316,15 @@ export const AddVisitorPage: React.FC = () => {
                   styles={{
                     label: { marginBottom: '5px' }
                   }}
-                  error={errorDataConfig.name}
+                  error={errorDataConfig.nama}
                   mb={15}
                 >
                   <Input
                     size="md"
                     radius="md"
                     placeholder=""
-                    name="name"
-                    value={formData.name}
+                    name="nama"
+                    value={formData.nama}
                     onChange={handleInputChange}
                   />
                 </Input.Wrapper>
@@ -225,15 +336,15 @@ export const AddVisitorPage: React.FC = () => {
                   styles={{
                     label: { marginBottom: '5px' }
                   }}
-                  error={errorDataConfig.phone}
+                  error={errorDataConfig.telp}
                   mb={15}
                 >
                   <Input
                     size="md"
                     radius="md"
                     placeholder=""
-                    name="phone"
-                    value={formData.phone}
+                    name="telp"
+                    value={formData.telp}
                     onChange={handleInputChange}
                   />
                 </Input.Wrapper>
@@ -271,12 +382,12 @@ export const AddVisitorPage: React.FC = () => {
                     radius="md"
                     placeholder="Pick value"
                     data={['MALE', 'FEMALE']}
-                    name="gender"
-                    value={formData.gender}
+                    name="sex"
+                    value={formData.sex}
                     onChange={(value) =>
                       setFormData((prevState) => ({
                         ...prevState,
-                        gender: value || 'MALE'
+                        sex: value || 'MALE'
                       }))
                     }
                   />
@@ -294,8 +405,8 @@ export const AddVisitorPage: React.FC = () => {
                     size="md"
                     radius="md"
                     placeholder=""
-                    name="com_visit"
-                    value={formData.com_visit}
+                    name="comp_visit"
+                    value={formData.comp_visit}
                     onChange={handleInputChange}
                   />
                 </Input.Wrapper>
@@ -327,15 +438,15 @@ export const AddVisitorPage: React.FC = () => {
                   styles={{
                     label: { marginBottom: '5px' }
                   }}
-                  error={errorDataConfig.phone}
+                  error={errorDataConfig.cp}
                   mb={15}
                 >
                   <Input
                     size="md"
                     radius="md"
                     placeholder=""
-                    name="phone"
-                    value={formData.phone}
+                    name="cp"
+                    value={formData.cp}
                     onChange={handleInputChange}
                   />
                 </Input.Wrapper>
@@ -345,111 +456,48 @@ export const AddVisitorPage: React.FC = () => {
         </Grid.Col>
         <Grid.Col span={4}>
           <Paper shadow="lg" radius="lg" p={20} h={'85vh'}>
-            {/* CAMERA 1 */}
-            <Box mb={20}>
-              {capturedImage ? (
-                <Box
-                  style={{ border: '2px dashed gray', borderRadius: '8px', overflow: 'hidden' }}
-                  onClick={open}
-                >
-                  <AspectRatio ratio={2 / 1}>
-                    <img
-                      src={capturedImage}
-                      alt="Captured"
-                      style={{ width: '100%', height: '100%' }}
-                    />
-                  </AspectRatio>
-                </Box>
-              ) : (
-                <AspectRatio ratio={2 / 1}>
+            {[0, 1, 2].map((index) => (
+              <Box mb={20} key={index}>
+                {capturedImages[index] ? (
                   <Box
-                    style={{ border: '2px dashed gray', borderRadius: '8px' }}
-                    bg={'gray.1'}
-                    c={'gray'}
-                    onClick={open}
+                    style={{ border: '2px dashed gray', borderRadius: '8px', overflow: 'hidden' }}
+                    onClick={() => {
+                      setCurrentImageIndex(index)
+                      open()
+                    }}
                   >
-                    <Flex h="100%" w="100%" direction="column" justify="center" align="center">
-                      <Center>
-                        <MdOutlinePhotoCameraFront style={{ fontSize: '7rem' }} />
-                      </Center>
-                      <Center>
-                        <Text fw={500}>CAPTURE FACE OF THE VISITOR</Text>
-                      </Center>
-                    </Flex>
+                    <AspectRatio ratio={2 / 1}>
+                      <img
+                        src={capturedImages[index]}
+                        alt={`Captured ${index + 1}`}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </AspectRatio>
                   </Box>
-                </AspectRatio>
-              )}
-            </Box>
-            {/* CAMERA 2 */}
-            <Box mb={20}>
-              {capturedImage ? (
-                <Box
-                  style={{ border: '2px dashed gray', borderRadius: '8px', overflow: 'hidden' }}
-                  onClick={open}
-                >
+                ) : (
                   <AspectRatio ratio={2 / 1}>
-                    <img
-                      src={capturedImage}
-                      alt="Captured"
-                      style={{ width: '100%', height: '100%' }}
-                    />
+                    <Box
+                      style={{ border: '2px dashed gray', borderRadius: '8px' }}
+                      bg={'gray.1'}
+                      c={'gray'}
+                      onClick={() => {
+                        setCurrentImageIndex(index)
+                        open()
+                      }}
+                    >
+                      <Flex h="100%" w="100%" direction="column" justify="center" align="center">
+                        <Center>
+                          <MdOutlinePhotoCameraFront style={{ fontSize: '7rem' }} />
+                        </Center>
+                        <Center>
+                          <Text fw={500}>CAPTURE FACE OF THE VISITOR</Text>
+                        </Center>
+                      </Flex>
+                    </Box>
                   </AspectRatio>
-                </Box>
-              ) : (
-                <AspectRatio ratio={2 / 1}>
-                  <Box
-                    style={{ border: '2px dashed gray', borderRadius: '8px' }}
-                    bg={'gray.1'}
-                    c={'gray'}
-                    onClick={open}
-                  >
-                    <Flex h="100%" w="100%" direction="column" justify="center" align="center">
-                      <Center>
-                        <MdOutlinePhotoCameraFront style={{ fontSize: '7rem' }} />
-                      </Center>
-                      <Center>
-                        <Text fw={500}>CAPTURE FACE OF THE VISITOR</Text>
-                      </Center>
-                    </Flex>
-                  </Box>
-                </AspectRatio>
-              )}
-            </Box>
-            {/* CAMERA 3 */}
-            <Box mb={20}>
-              {capturedImage ? (
-                <Box
-                  style={{ border: '2px dashed gray', borderRadius: '8px', overflow: 'hidden' }}
-                  onClick={open}
-                >
-                  <AspectRatio ratio={2 / 1}>
-                    <img
-                      src={capturedImage}
-                      alt="Captured"
-                      style={{ width: '100%', height: '100%' }}
-                    />
-                  </AspectRatio>
-                </Box>
-              ) : (
-                <AspectRatio ratio={2 / 1}>
-                  <Box
-                    style={{ border: '2px dashed gray', borderRadius: '8px' }}
-                    bg={'gray.1'}
-                    c={'gray'}
-                    onClick={open}
-                  >
-                    <Flex h="100%" w="100%" direction="column" justify="center" align="center">
-                      <Center>
-                        <MdOutlinePhotoCameraFront style={{ fontSize: '7rem' }} />
-                      </Center>
-                      <Center>
-                        <Text fw={500}>CAPTURE FACE OF THE VISITOR</Text>
-                      </Center>
-                    </Flex>
-                  </Box>
-                </AspectRatio>
-              )}
-            </Box>
+                )}
+              </Box>
+            ))}
           </Paper>
         </Grid.Col>
         <Grid.Col span={4}>
@@ -490,7 +538,9 @@ export const AddVisitorPage: React.FC = () => {
                     placeholder="Pick value"
                     data={dataTypeAccess}
                     value={selectedTypeAccess}
-                    onChange={(value) => setSelectedTypeAccess(value)}
+                    onChange={(value) => {
+                      setSelectedTypeAccess(value)
+                    }}
                   />
                 </Input.Wrapper>
               </Grid.Col>
@@ -508,8 +558,8 @@ export const AddVisitorPage: React.FC = () => {
                     radius="md"
                     placeholder=""
                     disabled={selectedTypeAccess === '0' ? false : true}
-                    name="name"
-                    value={formData.name}
+                    name="nokartuakses"
+                    value={formData.nokartuakses}
                     onChange={handleInputChange}
                   />
                 </Input.Wrapper>
@@ -553,32 +603,20 @@ export const AddVisitorPage: React.FC = () => {
                   />
                 </Input.Wrapper>
               </Grid.Col>
-              <Grid.Col span={12} pb={0}>
-                <Input.Wrapper
-                  label="Remake"
-                  withAsterisk
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
-                  error={errorDataConfig.name}
-                  mb={15}
-                >
-                  <Input
-                    size="md"
-                    radius="md"
-                    placeholder=""
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                  />
-                </Input.Wrapper>
-              </Grid.Col>
             </Grid>
-            <Flex justify={'flex-end'} mt={25}>
-              <Button radius="md" size="md" mt={10} w={'50%'} onClick={handleSubmit}>
+            <Grid.Col span={12} className="text-end" p={0}>
+              <Button
+                radius="md"
+                size="md"
+                mt={20}
+                w={'100%'}
+                loading={loadingSubmit}
+                loaderProps={{ type: 'dots' }}
+                onClick={handleSubmit}
+              >
                 SUBMIT DATA
               </Button>
-            </Flex>
+            </Grid.Col>
           </Paper>
         </Grid.Col>
       </Grid>
@@ -589,19 +627,16 @@ export const AddVisitorPage: React.FC = () => {
         radius={'md'}
         onClose={close}
         size={'55rem'}
-        title="Capture Face Of Visitor"
+        title={`Capture Face Of Visitor ${currentImageIndex !== null ? currentImageIndex + 1 : ''}`}
         centered
-        style={{
-          maxWidth: '90vw',
-          maxHeight: '80vh'
-        }}
+        style={{ maxWidth: '90vw', maxHeight: '80vh' }}
       >
         <Box>
-          {capturedImage ? (
+          {currentImageIndex !== null && capturedImages[currentImageIndex] ? (
             <Flex justify={'center'}>
               <img
-                ref={cropperRef}
-                src={capturedImage}
+                ref={(el) => (cropperRefs.current[currentImageIndex] = el)}
+                src={capturedImages[currentImageIndex]!}
                 alt="Preview"
                 style={{
                   maxWidth: '100%',
@@ -627,7 +662,10 @@ export const AddVisitorPage: React.FC = () => {
             <Button w={'50%'} size="md" radius={'md'} variant="outline" onClick={retakePhoto}>
               RETAKE
             </Button>
-            {capturedImage && cropper && !cropStatus ? (
+            {currentImageIndex !== null &&
+            capturedImages[currentImageIndex] &&
+            croppers[currentImageIndex] &&
+            !cropStatuses[currentImageIndex] ? (
               <Button w={'50%'} size="md" radius={'md'} onClick={handleCrop}>
                 CROP
               </Button>
@@ -637,7 +675,7 @@ export const AddVisitorPage: React.FC = () => {
                 size="md"
                 radius={'md'}
                 onClick={capturePhoto}
-                disabled={capturedImage !== null}
+                disabled={currentImageIndex !== null && capturedImages[currentImageIndex] !== null}
               >
                 CAPTURE
               </Button>

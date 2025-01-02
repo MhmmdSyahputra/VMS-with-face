@@ -10,6 +10,7 @@ interface ConfigService {
   getTypeAccess: () => Promise<IGetTypeAccess[]>
   getReason: () => Promise<IGetReason[]>
   getListTime: () => Promise<{ jam: string }[]>
+  getDate: () => Promise<{ tanggal: string }>
 }
 
 const ConfigService = (): ConfigService => {
@@ -78,12 +79,26 @@ const ConfigService = (): ConfigService => {
     }
   }
 
+  const getDate = async (): Promise<{ tanggal: string }> => {
+    try {
+      const response: AxiosResponse<{ tanggal: string }> = await axios.get(
+        `${apiUrl}?secretkey=${secretCode}&tipe=getDate`
+      )
+      console.log(response)
+      return response.data
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
   return {
     getDataStats,
     getDestination,
     getTypeAccess,
     getReason,
-    getListTime
+    getListTime,
+    getDate
   }
 }
 

@@ -57,7 +57,7 @@ export const AddEmployeePage: React.FC = () => {
           color: 'red',
           position: 'top-right',
           title: 'Gagal',
-          message: 'Terjadi kesalahan pada server!'
+          message: `${response.msgtext}`
         })
       }
 

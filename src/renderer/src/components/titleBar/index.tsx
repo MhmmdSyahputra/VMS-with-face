@@ -6,16 +6,18 @@ import { FaRegSave } from 'react-icons/fa'
 import { BiWindows } from 'react-icons/bi'
 import classes from './titleBar.module.css'
 import { notifications } from '@mantine/notifications'
+import { IDataConfig } from '@renderer/interface/config.interface'
 
 export const Titlebar: React.FC = () => {
   const [openedConfig, { open: openConfig, close: closeConfig }] = useDisclosure(false)
   const [openedConfirm, { open: openConfirm, close: closeConfirm }] = useDisclosure(false)
 
   const [deviceId, setDeviceId] = useState<string>('')
-  const [dataConfig, setDataConfig] = useState({
-    licenseKey: '',
-    baseURL: '',
-    secretCode: ''
+  const [dataConfig, setDataConfig] = useState<IDataConfig>({
+    licenseKey: '1122334455',
+    baseURL: 'http://103.120.169.151/sysgate_office/_api/api-vms.php',
+    secretCode: '1122334455667788',
+    idKiosk: 'K01'
   })
   const [errorDataConfig, setErrorDataConfig] = useState<{
     [key: string]: string
@@ -88,7 +90,8 @@ export const Titlebar: React.FC = () => {
       const defaultConfig = {
         licenseKey: '',
         baseURL: '',
-        secretCode: ''
+        secretCode: '',
+        idKiosk: ''
       }
       localStorage.setItem(configKey, JSON.stringify(defaultConfig))
       setDataConfig(defaultConfig)
@@ -140,7 +143,7 @@ export const Titlebar: React.FC = () => {
         <Divider my="xs" label="Configurasi Aplication" labelPosition="left" />
         <Box mb={20}>
           <Grid>
-            <Grid.Col span={12}>
+            <Grid.Col pb={0} span={12}>
               <TextInput
                 value={deviceId}
                 variant="filled"
@@ -149,12 +152,10 @@ export const Titlebar: React.FC = () => {
                 radius="md"
                 label="DeviceID"
                 placeholder=""
-                mb={10}
+                mb={15}
               />
             </Grid.Col>
-          </Grid>
-          <Grid>
-            <Grid.Col span={12}>
+            <Grid.Col py={0} span={12}>
               <TextInput
                 size="md"
                 value={dataConfig.licenseKey}
@@ -164,12 +165,10 @@ export const Titlebar: React.FC = () => {
                 label="License Key"
                 placeholder=""
                 error={errorDataConfig.licenseKey}
-                mb={10}
+                mb={15}
               />
             </Grid.Col>
-          </Grid>
-          <Grid>
-            <Grid.Col span={9}>
+            <Grid.Col py={0} span={9}>
               <TextInput
                 size="md"
                 value={dataConfig.baseURL}
@@ -179,10 +178,10 @@ export const Titlebar: React.FC = () => {
                 label="Base URL"
                 placeholder=""
                 error={errorDataConfig.baseURL}
-                mb={10}
+                mb={15}
               />
             </Grid.Col>
-            <Grid.Col span={3}>
+            <Grid.Col py={0} span={3}>
               <TextInput
                 size="md"
                 value={dataConfig.secretCode}
@@ -192,6 +191,19 @@ export const Titlebar: React.FC = () => {
                 label="Secret Code"
                 placeholder=""
                 error={errorDataConfig.secretCode}
+                mb={3}
+              />
+            </Grid.Col>
+            <Grid.Col py={0} span={12}>
+              <TextInput
+                size="md"
+                value={dataConfig.idKiosk}
+                onChange={handleInputChange}
+                name="idKiosk"
+                radius="md"
+                label="ID Kios"
+                placeholder=""
+                error={errorDataConfig.idKiosk}
                 mb={3}
               />
             </Grid.Col>
