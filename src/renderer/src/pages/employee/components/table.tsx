@@ -93,7 +93,7 @@ export const TableListEmploye: React.FC = () => {
             </Text>
           </div>
           <div className="text-end">
-            <Link to="/visitor/add">
+            <Link to="/employee/add">
               <Button variant="outline">
                 <TbPlus className="me-2" /> Tambah
               </Button>

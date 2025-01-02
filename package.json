@@ -25,13 +25,16 @@
     "@electron-toolkit/utils": "^3.0.0",
     "@mantine/core": "^7.15.2",
     "@mantine/hooks": "^7.15.2",
+    "@mantine/notifications": "^7.15.2",
     "@mantinex/mantine-logo": "^1.1.0",
+    "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "cropperjs": "^1.6.2",
     "electron-updater": "^6.1.7",
     "react-icons": "^5.4.0",
     "react-router-dom": "^7.1.1",
-    "react-webcam": "^7.2.0"
+    "react-webcam": "^7.2.0",
+    "sweetalert2": "^11.15.5"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",

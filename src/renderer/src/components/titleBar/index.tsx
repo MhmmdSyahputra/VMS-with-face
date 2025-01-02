@@ -1,22 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Grid,
-  Modal,
-  Notification,
-  Text,
-  TextInput,
-  rem
-} from '@mantine/core'
+import { Box, Button, Divider, Flex, Grid, Modal, Text, TextInput } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { FaGear, FaMinus, FaXmark } from 'react-icons/fa6'
 import { FaRegSave } from 'react-icons/fa'
 import { BiWindows } from 'react-icons/bi'
 import classes from './titleBar.module.css'
-import { TbCheck, TbX } from 'react-icons/tb'
+import { notifications } from '@mantine/notifications'
 
 export const Titlebar: React.FC = () => {
   const [openedConfig, { open: openConfig, close: closeConfig }] = useDisclosure(false)
@@ -31,10 +20,6 @@ export const Titlebar: React.FC = () => {
   const [errorDataConfig, setErrorDataConfig] = useState<{
     [key: string]: string
   }>({})
-  const [showNotification, setShowNotification] = useState<{
-    type: 'success' | 'error'
-    message: string
-  } | null>(null)
 
   const handleMinimize = (): void => window.electron.ipcRenderer.send('window:minimize')
   const handleMaximize = (): void => window.electron.ipcRenderer.send('window:maximize')
@@ -73,9 +58,14 @@ export const Titlebar: React.FC = () => {
       setErrorDataConfig(newErrors)
       return
     }
+
     localStorage.setItem('dataConfig', JSON.stringify(dataConfig))
-    setShowNotification({ type: 'success', message: 'Konfigurasi berhasil disimpan!' })
     closeConfig()
+    notifications.show({
+      position: 'top-right',
+      title: 'Berhasil',
+      message: 'Konfigurasi berhasil disimpan!'
+    })
   }
 
   useEffect(() => {
@@ -89,16 +79,6 @@ export const Titlebar: React.FC = () => {
 
     window.electron.ipcRenderer.on('uuid-response', handleResponse)
   }, [handleSaveConfig])
-
-  useEffect(() => {
-    if (showNotification) {
-      const timeout = setTimeout(() => {
-        setShowNotification(null)
-      }, 5000)
-
-      return (): void => clearTimeout(timeout)
-    }
-  }, [showNotification])
 
   useEffect(() => {
     const configKey = 'dataConfig'
@@ -227,24 +207,6 @@ export const Titlebar: React.FC = () => {
           </Button>
         </Box>
       </Modal>
-
-      {showNotification && (
-        <Notification
-          icon={
-            showNotification.type === 'success' ? (
-              <TbCheck style={{ width: rem(20), height: rem(20) }} />
-            ) : (
-              <TbX style={{ width: rem(20), height: rem(20) }} />
-            )
-          }
-          color={showNotification.type === 'success' ? 'teal' : 'red'}
-          title={showNotification.type === 'success' ? 'Berhasil!' : 'Gagal!'}
-          onClose={() => setShowNotification(null)}
-          style={{ position: 'fixed', bottom: 20, right: 20 }}
-        >
-          {showNotification.message}
-        </Notification>
-      )}
 
       {/* Modal Konfirmasi Close */}
       <Modal opened={openedConfirm} onClose={closeConfirm} title="Confirmation?">
