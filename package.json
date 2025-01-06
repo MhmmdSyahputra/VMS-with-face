@@ -20,6 +20,27 @@
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux"
   },
+  "build": {
+    "productName": "VISITOR MANAGEMENT SYSTEM",
+    "appId": "VISITOR MANAGEMENT SYSTEM",
+    "icon": "resources/ico.ico",
+    "asar": true,
+    "asarUnpack": "**\\*.{node,dll}",
+    "win": {
+      "icon": "resources/ico.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "extraResources": [
+      "./resources/**"
+    ]
+  },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",

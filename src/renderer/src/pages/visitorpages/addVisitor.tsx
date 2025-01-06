@@ -23,6 +23,7 @@ import axios from 'axios'
 import VisitorService from '@renderer/services/visitor.service'
 import { notifications } from '@mantine/notifications'
 import { cekWaktu } from '@renderer/utils/myFunction'
+import { useNavigate } from 'react-router-dom'
 
 interface FormData {
   nama: string
@@ -37,6 +38,7 @@ interface FormData {
 }
 
 export const AddVisitorPage: React.FC = () => {
+  const navigate = useNavigate()
   const configService = ConfigService()
   const visitorService = VisitorService()
   const [formData, setFormData] = useState<FormData>({
@@ -58,7 +60,7 @@ export const AddVisitorPage: React.FC = () => {
     { label: 'Laki-laki', value: '1' },
     { label: 'Prempuan', value: '0' }
   ])
-  const [selectedSex, setSelectedSex] = useState<string | null>('0')
+  const [selectedSex, setSelectedSex] = useState<string | null>('1')
 
   const [dataReason, setDataReason] = useState<{ label: string; value: string }[]>([])
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
@@ -101,7 +103,24 @@ export const AddVisitorPage: React.FC = () => {
     setErrorDataConfig((prevErrors) => ({ ...prevErrors, [name]: '' }))
   }
 
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {}
+    if (!formData.nama) errors.nama = 'Full name is required'
+    if (!formData.telp) errors.telp = 'Phone number is required'
+    if (!formData.sex) errors.sex = 'Gender is required'
+    if (!selectedDestination) errors.destination = 'Destination is required'
+    if (!selectedReason) errors.reason = 'Reason is required'
+
+    setErrorDataConfig(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleSubmit = async (): Promise<void> => {
+    if (!validateForm()) {
+      console.log('Form submitted:', formData)
+      return
+    }
+
     setLoadingSubmit(true)
     const getConfig = localStorage.getItem('dataConfig')
     const dataConfig: IDataConfig = JSON.parse(getConfig!)
@@ -155,12 +174,28 @@ export const AddVisitorPage: React.FC = () => {
       // }
 
       if (response.valid === 1) {
+        if (selectedTypeAccess !== '0') {
+          const dataToprint = {
+            header1: 'header1',
+            header2: 'header2',
+            codeAPI: response.kodetiket,
+            fullName: formData.nama,
+            idNumber: formData.nokartuakses,
+            destination: selectedDestination!.split(';')[1]!,
+            lantai: selectedDestination!.split(';')[3]!,
+            footer1: 'footer1',
+            footer2: 'footer2'
+          }
+          window.electron.ipcRenderer.send('print-entrance-ticket', dataToprint)
+        }
+
         notifications.show({
           color: 'green',
           position: 'top-right',
           title: 'Berhasil',
           message: `${response.msgtext}`
         })
+        navigate('/')
       } else {
         notifications.show({
           color: 'red',
@@ -385,11 +420,9 @@ export const AddVisitorPage: React.FC = () => {
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="E-MAIL"
-                  withAsterisk
                   styles={{
                     label: { marginBottom: '5px' }
                   }}
-                  error={errorDataConfig.email}
                   mb={15}
                 >
                   <Input
@@ -444,11 +477,10 @@ export const AddVisitorPage: React.FC = () => {
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="DESTINATION"
-                  withAsterisk
                   styles={{
                     label: { marginBottom: '5px' }
                   }}
-                  error={errorDataConfig.dest}
+                  error={errorDataConfig.destination}
                   mb={15}
                 >
                   <Select
@@ -465,11 +497,9 @@ export const AddVisitorPage: React.FC = () => {
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="CONTACT PERSON"
-                  withAsterisk
                   styles={{
                     label: { marginBottom: '5px' }
                   }}
-                  error={errorDataConfig.cp}
                   mb={15}
                 >
                   <Input
@@ -537,11 +567,10 @@ export const AddVisitorPage: React.FC = () => {
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="Reason of Visiting"
-                  withAsterisk
                   styles={{
                     label: { marginBottom: '5px' }
                   }}
-                  error={errorDataConfig.dest}
+                  error={errorDataConfig.reason}
                   mb={15}
                 >
                   <Select

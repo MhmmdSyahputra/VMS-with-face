@@ -3,13 +3,14 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 const nodeChildProcess = require('child_process')
+import path from 'path'
 
 let mainWindow: BrowserWindow
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    minWidth: 1000,
-    minHeight: 670,
+    minWidth: 1007,
+    minHeight: 641,
     show: false,
     titleBarStyle: 'hidden',
     autoHideMenuBar: true,
@@ -38,6 +39,61 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
+
+ipcMain.on('print-entrance-ticket', (event, data) => {
+  console.log(data)
+
+  const rWin = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      // devTools: false,
+      nodeIntegration: true,
+      webSecurity: false,
+      preload: app.isPackaged
+        ? path.join(__dirname, 'preload.js')
+        : path.join(__dirname, '../../.erb/dll/preload.js')
+    }
+  })
+
+  const RESOURCES_PATH_PRINT = app.isPackaged
+    ? path.join(
+        process.resourcesPath,
+        `resources/resources/receipt/print.html?code='${data.codeAPI}'`
+      )
+    : path.join(__dirname, `../../resources/receipt/print.html?code='${data.codeAPI}'`)
+
+  // rWin.loadFile(RESOURCES_PATH_PRINT);
+  rWin.loadURL(RESOURCES_PATH_PRINT).then(() => {
+    rWin.webContents.executeJavaScript(`
+    
+    document.getElementById('header1').innerText = '${data.header1}';
+    document.getElementById('header2').innerText = '${data.header2}';
+    document.getElementById('fullname').innerText = '${data.fullName}';
+    document.getElementById('idnumber').innerText = '${data.idNumber}';
+    document.getElementById('destination').innerText = '${data.destination}';
+    document.getElementById('lantai').innerText = '${data.lantai}';
+    document.getElementById('footer1').innerText = '${data.footer1}';
+    document.getElementById('footer2').innerText = '${data.footer2}';
+    `)
+
+    //berikan delay beberapa detik diisin
+
+    setTimeout(() => {
+      rWin.webContents.print({
+        silent: true,
+        margins: {
+          marginType: 'printableArea'
+        },
+        printBackground: false,
+        pagesPerSheet: 1,
+        landscape: false,
+        header: 'Header of the Page',
+        footer: 'Footer of the Page',
+        collate: false
+      })
+    }, 2000) // Sesuaikan timeout sesuai kebutuhan Anda
+  })
+})
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -91,9 +147,9 @@ ipcMain.on('window:minimize', () => {
 
 ipcMain.on('window:maximize', () => {
   if (mainWindow) {
+    mainWindow.setFullScreen(false)
     if (mainWindow.isMaximized()) {
       mainWindow.unmaximize()
-      mainWindow.setFullScreen(false)
     } else {
       mainWindow.maximize()
       mainWindow.setFullScreen(true)

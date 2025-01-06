@@ -21,6 +21,7 @@ const VisitorService = (): VisitorService => {
         `${apiUrl}?secretkey=${secretCode}&tipe=submitDataPengunjung`,
         data,
         {
+          timeout: 3000,
           headers: {
             'Content-type': 'multipart/form-data'
           }

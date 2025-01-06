@@ -24,6 +24,7 @@ export interface FormPayloadVisitor {
 export interface IResponseAddVisitor {
   valid: number
   msgtext?: string
+  kodetiket?: string
 }
 export interface HeaderItem {
   label: string // Nama header

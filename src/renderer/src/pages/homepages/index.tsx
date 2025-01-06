@@ -119,7 +119,7 @@ export const HomePage: React.FC = () => {
                   <Center mb={20} c="blue.2">
                     <FaUserPlus className="display-1" />
                   </Center>
-                  <Text fz={18} fw={700} c="blue.9">
+                  <Text fz={16} fw={700} c="blue.9">
                     Register New Visitors Here
                   </Text>
                 </Flex>
