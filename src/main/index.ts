@@ -21,8 +21,6 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.setFullScreen(true)
-
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -95,8 +93,10 @@ ipcMain.on('window:maximize', () => {
   if (mainWindow) {
     if (mainWindow.isMaximized()) {
       mainWindow.unmaximize()
+      mainWindow.setFullScreen(false)
     } else {
       mainWindow.maximize()
+      mainWindow.setFullScreen(true)
     }
   }
 })

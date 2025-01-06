@@ -14,10 +14,10 @@ export const Titlebar: React.FC = () => {
 
   const [deviceId, setDeviceId] = useState<string>('')
   const [dataConfig, setDataConfig] = useState<IDataConfig>({
-    licenseKey: '1122334455',
-    baseURL: 'http://103.120.169.151/sysgate_office/_api/api-vms.php',
-    secretCode: '1122334455667788',
-    idKiosk: 'K01'
+    licenseKey: '',
+    baseURL: '',
+    secretCode: '',
+    idKiosk: ''
   })
   const [errorDataConfig, setErrorDataConfig] = useState<{
     [key: string]: string
@@ -68,6 +68,7 @@ export const Titlebar: React.FC = () => {
       title: 'Berhasil',
       message: 'Konfigurasi berhasil disimpan!'
     })
+    window.location.reload()
   }
 
   useEffect(() => {
@@ -86,16 +87,7 @@ export const Titlebar: React.FC = () => {
     const configKey = 'dataConfig'
     const existingConfig = localStorage.getItem(configKey)
 
-    if (!existingConfig) {
-      const defaultConfig = {
-        licenseKey: '',
-        baseURL: '',
-        secretCode: '',
-        idKiosk: ''
-      }
-      localStorage.setItem(configKey, JSON.stringify(defaultConfig))
-      setDataConfig(defaultConfig)
-    } else {
+    if (existingConfig) {
       setDataConfig(JSON.parse(existingConfig))
     }
   }, [openedConfig, openConfig, closeConfig])

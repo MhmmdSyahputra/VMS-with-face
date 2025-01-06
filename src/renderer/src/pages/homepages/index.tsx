@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { CardStatistik } from './components/cardStatistik'
 import { HomeTable } from './components/table'
-import { TbLogin } from 'react-icons/tb'
+import { TbLogin, TbUserCheck, TbUsersGroup } from 'react-icons/tb'
 import { Center, Flex, Grid, Paper, SimpleGrid, Text } from '@mantine/core'
 import ConfigService from '@renderer/services/config.service'
 import { IGetDataStats } from '@renderer/interface/stats.interface'
@@ -23,15 +23,17 @@ export const HomePage: React.FC = () => {
   const visitorService = VisitorService()
 
   const [dataStats, setDataStats] = useState<IGetDataStats>()
-  const [headerTable, setHeaderTable] = useState<HeaderTable | null>(null)
+  const [headerTable, setHeaderTable] = useState<HeaderTable>()
   const [dataVisitors, setDataVisitors] = useState<Visitor[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
 
   const getDataStats = async (): Promise<void> => {
     try {
       const response = await configService.getDataStats()
       setDataStats(response)
     } catch (error) {
-      console.log(error)
+      console.error('Error fetching data stats:', error)
     }
   }
 
@@ -45,8 +47,11 @@ export const HomePage: React.FC = () => {
         }))
       }
       setHeaderTable(formattedHeader)
+      await getDataVisitor()
     } catch (error) {
-      console.error('Error fetching header table:', error)
+      setError('Terjadi kesalahan pada server')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -55,19 +60,20 @@ export const HomePage: React.FC = () => {
       const response = await visitorService.getDataVisitor()
       setDataVisitors(response)
     } catch (error) {
-      console.error('Error fetching header table:', error)
+      setError('Terjadi kesalahan pada server')
     }
   }
 
   useEffect(() => {
+    setLoading(true)
+    setError(null)
     getDataStats()
     getHeaderTable()
-    getDataVisitor()
   }, [])
 
   return (
     <>
-      <Grid grow gutter="xl" style={{ height: '100vh' }}>
+      <Grid grow gutter="md" style={{ height: '100vh' }}>
         <Grid.Col span={2}>
           <Grid grow gutter="lg">
             <Grid.Col span={12}>
@@ -79,7 +85,7 @@ export const HomePage: React.FC = () => {
             </Grid.Col>
             <Grid.Col span={12}>
               <CardStatistik
-                icon={<TbLogin className="display-4" />}
+                icon={<TbUsersGroup className="display-4" />}
                 title="Total Pengunjung"
                 value={dataStats?.totalvisitor || '0'}
               />
@@ -93,7 +99,7 @@ export const HomePage: React.FC = () => {
             </Grid.Col>
             <Grid.Col span={12}>
               <CardStatistik
-                icon={<TbLogin className="display-4" />}
+                icon={<TbUserCheck className="display-4" />}
                 title="Selesai"
                 value={dataStats?.returned || '0'}
               />
@@ -121,12 +127,13 @@ export const HomePage: React.FC = () => {
             </Paper>
           </SimpleGrid>
         </Grid.Col>
-        <Grid.Col span={8} style={{ height: '90vh' }}>
-          {headerTable ? (
-            <HomeTable headerTable={headerTable} visitors={dataVisitors} />
-          ) : (
-            <p>Loading header table...</p>
-          )}
+        <Grid.Col span={9} style={{ height: '90vh' }}>
+          <HomeTable
+            error={error!}
+            loading={loading}
+            headerTable={headerTable!}
+            visitors={dataVisitors}
+          />
         </Grid.Col>
       </Grid>
     </>

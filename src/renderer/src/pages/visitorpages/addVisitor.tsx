@@ -338,9 +338,9 @@ export const AddVisitorPage: React.FC = () => {
 
   return (
     <>
-      <Grid grow gutter="xl" h={'100vh'}>
-        <Grid.Col span={4}>
-          <Paper shadow="lg" radius="lg" p={20} h={'85vh'}>
+      <Grid grow gutter="md" h={'100vh'}>
+        <Grid.Col span={4} h={'90vh'}>
+          <Paper shadow="lg" radius="lg" p={20} h="100%">
             <Grid>
               <Grid.Col span={12} pb={0}>
                 <Input.Wrapper
@@ -486,7 +486,7 @@ export const AddVisitorPage: React.FC = () => {
           </Paper>
         </Grid.Col>
         <Grid.Col span={4}>
-          <Paper shadow="lg" radius="lg" p={20} h={'85vh'}>
+          <Paper shadow="lg" radius="lg" p={20} h={'100%'}>
             {[0, 1, 2].map((index) => (
               <Box mb={20} key={index}>
                 {capturedImages[index] ? (
@@ -532,7 +532,7 @@ export const AddVisitorPage: React.FC = () => {
           </Paper>
         </Grid.Col>
         <Grid.Col span={4}>
-          <Paper shadow="lg" radius="lg" p={20} h={'85vh'}>
+          <Paper shadow="lg" radius="lg" p={20} h={'100%'}>
             <Grid>
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper

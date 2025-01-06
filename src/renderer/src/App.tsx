@@ -8,7 +8,6 @@ import {
   VisitorPage
 } from './pages'
 import { MemoryRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { NavbarMinimal } from './pages/testing'
 import { MantineProvider } from '@mantine/core'
 import { Titlebar } from './components/titleBar'
 import { Notifications } from '@mantine/notifications'
@@ -47,9 +46,34 @@ function MainLayout(): JSX.Element {
         idKiosk: 'K01'
       }
       localStorage.setItem(configKey, JSON.stringify(defaultConfig))
+      window.location.reload()
     }
     setLoading(false)
   }, [])
+
+  window.addEventListener('keydown', (e) => {
+    const { key, altKey } = e
+    //disable alt+f4 for close
+    if (key === 'F4' && altKey) {
+      e.preventDefault()
+    }
+    if (key === 'w' && e.ctrlKey) {
+      e.preventDefault()
+    }
+    //disable f for taskbar
+    if (key === 'f' && altKey) {
+      e.preventDefault()
+    }
+    //disable F12 for minimize
+    if (key === 'F11') {
+      e.preventDefault()
+    }
+
+    if (key == 'r' && e.ctrlKey) {
+      e.preventDefault()
+      window.location.reload()
+    }
+  })
 
   if (loading) {
     return <div>Loading...</div> // Replace this with a proper loading spinner if needed
@@ -76,7 +100,6 @@ function SidebarLayout(): JSX.Element {
         <Route path="/visitor" element={<VisitorPage />} />
         <Route path="/employee" element={<EmployeePage />} />
         <Route path="/employee/add" element={<AddEmployeePage />} />
-        <Route path="/tes" element={<NavbarMinimal />} />
         <Route path="*" element={<div>Page Not Found</div>} />
       </Routes>
     </Sidebar>

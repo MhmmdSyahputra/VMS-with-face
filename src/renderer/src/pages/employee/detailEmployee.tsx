@@ -141,10 +141,10 @@ export const AddEmployeePage: React.FC = () => {
 
   return (
     <>
-      <Grid grow gutter="xl" h={'100vh'}>
+      <Grid grow gutter="md" h={'100vh'}>
         {/* COL FOR INPUT */}
-        <Grid.Col span={7}>
-          <Paper shadow="lg" radius="lg" p={20} h={'85vh'}>
+        <Grid.Col span={7} h={'90vh'}>
+          <Paper shadow="lg" radius="lg" p={20} h="100%">
             <Grid grow gutter="xl" h={'100vh'}>
               <Grid.Col span={12} pb={0}>
                 <form onSubmit={checkNoKartu}>
@@ -303,8 +303,8 @@ export const AddEmployeePage: React.FC = () => {
           </Paper>
         </Grid.Col>
         {/* COL FOR IMG */}
-        <Grid.Col span={5}>
-          <Paper shadow="lg" radius="lg" p={20} h={'85vh'}>
+        <Grid.Col span={5} h={'90vh'}>
+          <Paper shadow="lg" radius="lg" p={20} h="100%">
             {capturedImage ? (
               <Box
                 style={{ border: '2px dashed gray', borderRadius: '8px', overflow: 'hidden' }}

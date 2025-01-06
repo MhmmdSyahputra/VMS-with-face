@@ -1,6 +1,16 @@
-import { Paper, Text, Table, Button, SimpleGrid, Avatar, ScrollArea, Badge } from '@mantine/core'
+import {
+  Paper,
+  Text,
+  Table,
+  Button,
+  SimpleGrid,
+  Avatar,
+  ScrollArea,
+  Badge,
+  Group
+} from '@mantine/core'
 import React, { useState } from 'react'
-import { TbPlus } from 'react-icons/tb'
+import { TbPlus, TbSearch } from 'react-icons/tb'
 import { Link } from 'react-router-dom'
 interface DataPengunjung {
   nama: string
@@ -93,11 +103,18 @@ export const TableListEmploye: React.FC = () => {
             </Text>
           </div>
           <div className="text-end">
-            <Link to="/employee/add">
-              <Button variant="outline">
-                <TbPlus className="me-2" /> Tambah
-              </Button>
-            </Link>
+            <Group justify="flex-end">
+              <Link to="/employee/add">
+                <Button>
+                  <TbSearch className="me-2" /> Cari
+                </Button>
+              </Link>
+              <Link to="/employee/add">
+                <Button variant="outline">
+                  <TbPlus className="me-2" /> Tambah
+                </Button>
+              </Link>
+            </Group>
           </div>
         </SimpleGrid>
         <ScrollArea>

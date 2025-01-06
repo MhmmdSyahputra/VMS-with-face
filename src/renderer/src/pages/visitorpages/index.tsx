@@ -17,6 +17,9 @@ export const VisitorPage: React.FC = () => {
   const visitorService = VisitorService()
   const [headerTable, setHeaderTable] = useState<HeaderTable | null>(null)
   const [dataVisitors, setDataVisitors] = useState<Visitor[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
   const getHeaderTable = async (): Promise<void> => {
     try {
       const response = await visitorService.getHeaderTableVisitor()
@@ -27,8 +30,11 @@ export const VisitorPage: React.FC = () => {
         }))
       }
       setHeaderTable(formattedHeader)
+      await getDataVisitor()
     } catch (error) {
-      console.error('Error fetching header table:', error)
+      setError('Terjadi kesalahan pada server')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -37,24 +43,26 @@ export const VisitorPage: React.FC = () => {
       const response = await visitorService.getDataVisitor()
       setDataVisitors(response)
     } catch (error) {
-      console.error('Error fetching header table:', error)
+      setError('Terjadi kesalahan pada server')
     }
   }
 
   useEffect(() => {
+    setLoading(true)
+    setError(null)
     getHeaderTable()
-    getDataVisitor()
   }, [])
 
   return (
     <>
       <Grid grow gutter="xl" style={{ height: '100vh' }}>
-        <Grid.Col span={12} style={{ height: '85vh' }} pb={0}>
-          {headerTable ? (
-            <TableVisitor headerTable={headerTable} visitors={dataVisitors} />
-          ) : (
-            <p>Loading header table...</p>
-          )}
+        <Grid.Col span={12} style={{ height: '90vh' }} pb={0}>
+          <TableVisitor
+            error={error!}
+            loading={loading}
+            headerTable={headerTable!}
+            visitors={dataVisitors}
+          />
         </Grid.Col>
       </Grid>
     </>
