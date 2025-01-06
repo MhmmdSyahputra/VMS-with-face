@@ -12,16 +12,12 @@ interface HeaderTable {
   header: HeaderItem[]
 }
 
-interface HomeTableProps {
+interface TableVisitorProps {
   headerTable: HeaderTable
   visitors: Visitor[]
 }
 
-export const HomeTable: React.FC<HomeTableProps> = ({ headerTable, visitors }) => {
-  console.log(visitors)
-
-  console.log(headerTable?.header[0].label)
-
+export const TableVisitor: React.FC<TableVisitorProps> = ({ headerTable, visitors }) => {
   return (
     <>
       <Paper
@@ -34,7 +30,7 @@ export const HomeTable: React.FC<HomeTableProps> = ({ headerTable, visitors }) =
         <SimpleGrid cols={2} mb={'md'} spacing="lg" verticalSpacing="lg">
           <div>
             <Text fz="lg" fw={700}>
-              Daftar Pengunjung Terbaru
+              Daftar Pengunjung
             </Text>
           </div>
           <div className="text-end">
@@ -54,9 +50,9 @@ export const HomeTable: React.FC<HomeTableProps> = ({ headerTable, visitors }) =
                   <Table.Th
                     key={index}
                     fw={700}
-                    // style={{
-                    //   width: typeof item.width === 'number' ? `${item.width}px` : item.width
-                    // }}
+                    style={{
+                      width: typeof item.width === 'number' ? `${item.width}px` : item.width
+                    }}
                   >
                     {item.label}
                   </Table.Th>

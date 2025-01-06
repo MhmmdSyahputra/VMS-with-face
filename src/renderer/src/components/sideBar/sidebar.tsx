@@ -1,15 +1,5 @@
 import { ReactNode, useState } from 'react'
-import {
-  TbCalendarStats,
-  TbDeviceDesktopAnalytics,
-  TbFingerprint,
-  TbHome2,
-  TbLogout,
-  TbSettings,
-  TbSwitchHorizontal,
-  TbUserPlus,
-  TbUsersGroup
-} from 'react-icons/tb'
+import { TbHome2, TbLogout, TbSwitchHorizontal, TbUserPlus, TbUsersGroup } from 'react-icons/tb'
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core'
 import classes from './sidebar.module.css'
 import { useNavigate } from 'react-router-dom'
@@ -49,11 +39,7 @@ function NavbarLink({ icon: Icon, label, active, to, onClick }: NavbarLinkProps)
 const mockdata = [
   { icon: TbHome2, label: 'Home', to: '/' },
   { icon: TbUserPlus, label: 'Add Visitor', to: '/visitor/add' },
-  { icon: TbUsersGroup, label: 'Employee', to: '/employee' },
-  { icon: TbDeviceDesktopAnalytics, label: 'Analytics', to: '/' },
-  { icon: TbCalendarStats, label: 'Releases', to: '/' },
-  { icon: TbFingerprint, label: 'Security', to: '/' },
-  { icon: TbSettings, label: 'Settings', to: '/' }
+  { icon: TbUsersGroup, label: 'Visitor', to: '/visitor' }
 ]
 
 interface SidebarProps {

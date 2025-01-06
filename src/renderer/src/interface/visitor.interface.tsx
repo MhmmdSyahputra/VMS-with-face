@@ -25,3 +25,32 @@ export interface IResponseAddVisitor {
   valid: number
   msgtext?: string
 }
+export interface HeaderItem {
+  label: string // Nama header
+  width: string | number // Lebar kolom (dalam piksel atau persen)
+}
+
+export interface IResponseHeaderVisitor {
+  header: {
+    label: string
+    width: string | number
+  }[]
+}
+
+export interface Visitor {
+  idpengunjung: string
+  tanggal: string
+  kodetiket: string
+  nama: string
+  telp: string
+  noktp: string
+  sex: string
+  tujuan: string
+  cpprsh: string
+  alasan: string
+  createby: string
+  foto1: string
+  foto2: string
+  foto3: string
+  statuspengunjung: string
+}

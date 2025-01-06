@@ -22,6 +22,7 @@ import { IDataConfig } from '@renderer/interface/config.interface'
 import axios from 'axios'
 import VisitorService from '@renderer/services/visitor.service'
 import { notifications } from '@mantine/notifications'
+import { cekWaktu } from '@renderer/utils/myFunction'
 
 interface FormData {
   nama: string
@@ -52,6 +53,12 @@ export const AddVisitorPage: React.FC = () => {
   const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
   const [dataDestination, setDataDestination] = useState<{ label: string; value: string }[]>([])
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null)
+
+  const [dataSex] = useState<{ label: string; value: string }[]>([
+    { label: 'Laki-laki', value: '1' },
+    { label: 'Prempuan', value: '0' }
+  ])
+  const [selectedSex, setSelectedSex] = useState<string | null>('0')
 
   const [dataReason, setDataReason] = useState<{ label: string; value: string }[]>([])
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
@@ -85,10 +92,12 @@ export const AddVisitorPage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = e.target
+
     setFormData((prevState) => ({
       ...prevState,
       [name]: value
     }))
+
     setErrorDataConfig((prevErrors) => ({ ...prevErrors, [name]: '' }))
   }
 
@@ -118,14 +127,14 @@ export const AddVisitorPage: React.FC = () => {
     payloadData.append('nama', formData.nama)
     payloadData.append('telp', formData.telp)
     payloadData.append('email', formData.email)
-    payloadData.append('sex', '')
+    payloadData.append('sex', selectedSex!)
     payloadData.append('prshvisitor', formData.prshvisitor)
-    // payloadData.append('idprsh', selectedDestination!.split(';')[0]!)
-    payloadData.append('namaprsh', '')
-    // payloadData.append('idlantai', selectedDestination!.split(';')[1]!)
-    payloadData.append('namalantai', '')
+    payloadData.append('idprsh', selectedDestination!.split(';')[0]!)
+    payloadData.append('namaprsh', selectedDestination!.split(';')[1]!)
+    payloadData.append('idlantai', selectedDestination!.split(';')[2]!)
+    payloadData.append('namalantai', selectedDestination!.split(';')[3]!)
     payloadData.append('cp', formData.cp)
-    payloadData.append('no', '')
+    payloadData.append('no', formData.nokartuakses)
     payloadData.append('idalasan', selectedReason!)
     payloadData.append('namaalasan', '')
     payloadData.append('idakses', selectedTypeAccess!)
@@ -136,17 +145,22 @@ export const AddVisitorPage: React.FC = () => {
     try {
       const response = await visitorService.addVisitor(payloadData)
 
-      if (response.msgtext && response.msgtext.length > 0) {
-        notifications.show({
-          color: 'red',
-          position: 'top-right',
-          title: 'Gagal',
-          message: `${response.msgtext}`
-        })
-      }
+      // if (response.msgtext && response.msgtext.length > 0) {
+      //   notifications.show({
+      //     color: 'green',
+      //     position: 'top-right',
+      //     title: 'Berhasil',
+      //     message: `${response.msgtext}`
+      //   })
+      // }
 
       if (response.valid === 1) {
-        console.log(response)
+        notifications.show({
+          color: 'green',
+          position: 'top-right',
+          title: 'Berhasil',
+          message: `${response.msgtext}`
+        })
       } else {
         notifications.show({
           color: 'red',
@@ -261,7 +275,7 @@ export const AddVisitorPage: React.FC = () => {
       const response = await configService.getDestination()
       const transformedData = response.map((item) => ({
         label: `${item.namaprsh} ${item.namalantai}`,
-        value: `${item.idprsh};${item.idlantai}`
+        value: `${item.idprsh};${item.namaprsh};${item.idlantai};${item.namalantai}`
       }))
 
       setSelectedDestination(transformedData[0].value)
@@ -292,6 +306,25 @@ export const AddVisitorPage: React.FC = () => {
       setFormData({ ...formData, tanggal: response.tanggal.split(' ')[0] })
     } catch (error) {
       console.error(error)
+    }
+  }
+
+  const checkIDCard = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault()
+    try {
+      const response = await visitorService.checkIDCardAkses(formData.nokartuakses)
+      console.log(response)
+      if (response.valid != 1) {
+        notifications.show({
+          color: 'red',
+          position: 'top-right',
+          title: 'Gagal',
+          message: `${response.msgtext}`
+        })
+        setFormData({ ...formData, nokartuakses: '' })
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -378,18 +411,15 @@ export const AddVisitorPage: React.FC = () => {
                   mb={15}
                 >
                   <Select
+                    allowDeselect={false}
                     size="md"
                     radius="md"
                     placeholder="Pick value"
-                    data={['MALE', 'FEMALE']}
+                    data={dataSex}
+                    value={selectedSex}
                     name="sex"
-                    value={formData.sex}
-                    onChange={(value) =>
-                      setFormData((prevState) => ({
-                        ...prevState,
-                        sex: value || 'MALE'
-                      }))
-                    }
+                    // value={formData.sex}
+                    onChange={(value) => setSelectedSex(value)}
                   />
                 </Input.Wrapper>
               </Grid.Col>
@@ -422,6 +452,7 @@ export const AddVisitorPage: React.FC = () => {
                   mb={15}
                 >
                   <Select
+                    allowDeselect={false}
                     size="md"
                     radius="md"
                     placeholder="Pick value"
@@ -514,6 +545,7 @@ export const AddVisitorPage: React.FC = () => {
                   mb={15}
                 >
                   <Select
+                    allowDeselect={false}
                     size="md"
                     radius="md"
                     placeholder="Pick value"
@@ -533,6 +565,7 @@ export const AddVisitorPage: React.FC = () => {
                   mb={15}
                 >
                   <Select
+                    allowDeselect={false}
                     size="md"
                     radius="md"
                     placeholder="Pick value"
@@ -540,29 +573,32 @@ export const AddVisitorPage: React.FC = () => {
                     value={selectedTypeAccess}
                     onChange={(value) => {
                       setSelectedTypeAccess(value)
+                      setFormData({ ...formData, nokartuakses: '' })
                     }}
                   />
                 </Input.Wrapper>
               </Grid.Col>
               <Grid.Col span={6} py={0}>
-                <Input.Wrapper
-                  label="UUID CARD"
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
-                  error={errorDataConfig.dest}
-                  mb={15}
-                >
-                  <Input
-                    size="md"
-                    radius="md"
-                    placeholder=""
-                    disabled={selectedTypeAccess === '0' ? false : true}
-                    name="nokartuakses"
-                    value={formData.nokartuakses}
-                    onChange={handleInputChange}
-                  />
-                </Input.Wrapper>
+                <form onSubmit={checkIDCard}>
+                  <Input.Wrapper
+                    label="UUID CARD"
+                    styles={{
+                      label: { marginBottom: '5px' }
+                    }}
+                    error={errorDataConfig.dest}
+                    mb={15}
+                  >
+                    <Input
+                      size="md"
+                      radius="md"
+                      placeholder=""
+                      disabled={selectedTypeAccess === '0' ? false : true}
+                      name="nokartuakses"
+                      value={formData.nokartuakses}
+                      onChange={handleInputChange}
+                    />
+                  </Input.Wrapper>
+                </form>
               </Grid.Col>
               <Grid.Col span={6} py={0}>
                 <Input.Wrapper
@@ -574,6 +610,7 @@ export const AddVisitorPage: React.FC = () => {
                   mb={15}
                 >
                   <Select
+                    allowDeselect={false}
                     size="md"
                     radius="md"
                     placeholder="Pick value"
@@ -593,13 +630,24 @@ export const AddVisitorPage: React.FC = () => {
                   mb={15}
                 >
                   <Select
+                    allowDeselect={false}
                     size="md"
                     radius="md"
                     placeholder="Pick value"
                     disabled={selectedTypeVisit === '0' ? true : false}
                     data={dataTimeEnd}
                     value={selectedTimeEnd}
-                    onChange={(value) => setSelectedTimeEnd(value)}
+                    onChange={(value) => {
+                      if (cekWaktu(value!) === false) {
+                        notifications.show({
+                          color: 'red',
+                          position: 'top-right',
+                          title: '',
+                          message: `Please check the ending time of your chosen visit`
+                        })
+                      }
+                      setSelectedTimeEnd(value)
+                    }}
                   />
                 </Input.Wrapper>
               </Grid.Col>

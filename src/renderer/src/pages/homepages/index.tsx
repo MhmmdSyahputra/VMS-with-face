@@ -7,53 +7,91 @@ import ConfigService from '@renderer/services/config.service'
 import { IGetDataStats } from '@renderer/interface/stats.interface'
 import { Link } from 'react-router-dom'
 import { FaUserPlus } from 'react-icons/fa6'
+import VisitorService from '@renderer/services/visitor.service'
+import { Visitor } from '@renderer/interface/visitor.interface'
+interface HeaderItem {
+  label: string
+  width: string | number
+}
+
+interface HeaderTable {
+  header: HeaderItem[]
+}
 
 export const HomePage: React.FC = () => {
   const configService = ConfigService()
+  const visitorService = VisitorService()
 
   const [dataStats, setDataStats] = useState<IGetDataStats>()
+  const [headerTable, setHeaderTable] = useState<HeaderTable | null>(null)
+  const [dataVisitors, setDataVisitors] = useState<Visitor[]>([])
 
   const getDataStats = async (): Promise<void> => {
     try {
       const response = await configService.getDataStats()
-      console.log(response)
       setDataStats(response)
     } catch (error) {
       console.log(error)
     }
   }
 
+  const getHeaderTable = async (): Promise<void> => {
+    try {
+      const response = await visitorService.getHeaderTableVisitor()
+      const formattedHeader = {
+        header: response.header.map(([label, width]) => ({
+          label,
+          width: isNaN(Number(width)) ? width : Number(width)
+        }))
+      }
+      setHeaderTable(formattedHeader)
+    } catch (error) {
+      console.error('Error fetching header table:', error)
+    }
+  }
+
+  const getDataVisitor = async (): Promise<void> => {
+    try {
+      const response = await visitorService.getDataVisitor()
+      setDataVisitors(response)
+    } catch (error) {
+      console.error('Error fetching header table:', error)
+    }
+  }
+
   useEffect(() => {
     getDataStats()
+    getHeaderTable()
+    getDataVisitor()
   }, [])
 
   return (
     <>
       <Grid grow gutter="xl" style={{ height: '100vh' }}>
-        <Grid.Col span={5}>
-          <Grid>
-            <Grid.Col span={6}>
+        <Grid.Col span={2}>
+          <Grid grow gutter="lg">
+            <Grid.Col span={12}>
               <CardStatistik
                 icon={<TbLogin className="display-4" />}
                 title="Total hari ini"
                 value={dataStats?.totaltoday || '0'}
               />
             </Grid.Col>
-            <Grid.Col span={6}>
+            <Grid.Col span={12}>
               <CardStatistik
                 icon={<TbLogin className="display-4" />}
                 title="Total Pengunjung"
                 value={dataStats?.totalvisitor || '0'}
               />
             </Grid.Col>
-            <Grid.Col span={6}>
+            <Grid.Col span={12}>
               <CardStatistik
                 icon={<TbLogin className="display-4" />}
                 title="Didalam"
                 value={dataStats?.inside || '0'}
               />
             </Grid.Col>
-            <Grid.Col span={6}>
+            <Grid.Col span={12}>
               <CardStatistik
                 icon={<TbLogin className="display-4" />}
                 title="Selesai"
@@ -83,8 +121,12 @@ export const HomePage: React.FC = () => {
             </Paper>
           </SimpleGrid>
         </Grid.Col>
-        <Grid.Col span={7} style={{ height: '90vh' }}>
-          <HomeTable />
+        <Grid.Col span={8} style={{ height: '90vh' }}>
+          {headerTable ? (
+            <HomeTable headerTable={headerTable} visitors={dataVisitors} />
+          ) : (
+            <p>Loading header table...</p>
+          )}
         </Grid.Col>
       </Grid>
     </>
