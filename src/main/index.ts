@@ -40,7 +40,7 @@ function createWindow(): void {
   }
 }
 
-ipcMain.on('print-entrance-ticket', (event, data) => {
+ipcMain.on('print-entrance-ticket', (_, data) => {
   console.log(data)
 
   const rWin = new BrowserWindow({
