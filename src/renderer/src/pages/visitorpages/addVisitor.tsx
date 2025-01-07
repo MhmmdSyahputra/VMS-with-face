@@ -15,7 +15,6 @@ import { useDisclosure } from '@mantine/hooks'
 import React, { useState, useRef, useEffect } from 'react'
 import { MdOutlinePhotoCameraFront } from 'react-icons/md'
 import Webcam from 'react-webcam'
-import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
 import ConfigService from '@renderer/services/config.service'
 import { IDataConfig } from '@renderer/interface/config.interface'
@@ -86,7 +85,6 @@ export const AddVisitorPage: React.FC = () => {
   const [errorDataConfig, setErrorDataConfig] = useState<{ [key: string]: string }>({})
   const [opened, { open, close }] = useDisclosure(false)
   const [capturedImages, setCapturedImages] = useState<(string | null)[]>([null, null, null])
-  const [croppers, setCroppers] = useState<(Cropper | null)[]>([null, null, null])
   const [cropStatuses, setCropStatuses] = useState<boolean[]>([false, false, false])
   const webcamRef = useRef<Webcam>(null)
   const cropperRefs = useRef<(HTMLImageElement | null)[]>([null, null, null])
@@ -235,44 +233,6 @@ export const AddVisitorPage: React.FC = () => {
       newStatuses[currentImageIndex] = false
       setCropStatuses(newStatuses)
       open()
-    }
-  }
-
-  useEffect(() => {
-    if (
-      currentImageIndex !== null &&
-      capturedImages[currentImageIndex] &&
-      cropperRefs.current[currentImageIndex]
-    ) {
-      const newCropper = new Cropper(cropperRefs.current[currentImageIndex]!, {
-        aspectRatio: 1,
-        viewMode: 1,
-        scalable: true,
-        zoomable: true,
-        autoCropArea: 1,
-        responsive: true
-      })
-      const newCroppers = [...croppers]
-      newCroppers[currentImageIndex] = newCropper
-      setCroppers(newCroppers)
-    }
-
-    return (): void => {
-      croppers.forEach((cropper) => cropper?.destroy())
-    }
-  }, [capturedImages, currentImageIndex])
-
-  const handleCrop = (): void => {
-    if (currentImageIndex !== null && croppers[currentImageIndex]) {
-      const croppedImageUrl =
-        croppers[currentImageIndex]!.getCroppedCanvas().toDataURL('image/jpeg')
-      const newImages = [...capturedImages]
-      newImages[currentImageIndex] = croppedImageUrl
-      setCapturedImages(newImages)
-      const newStatuses = [...cropStatuses]
-      newStatuses[currentImageIndex] = true
-      setCropStatuses(newStatuses)
-      close()
     }
   }
 
@@ -551,7 +511,7 @@ export const AddVisitorPage: React.FC = () => {
                           <MdOutlinePhotoCameraFront style={{ fontSize: '7rem' }} />
                         </Center>
                         <Center>
-                          <Text fw={500}>CAPTURE FACE OF THE VISITOR</Text>
+                          <Text fw={500}>Photo #{index + 1}</Text>
                         </Center>
                       </Flex>
                     </Box>
@@ -704,7 +664,7 @@ export const AddVisitorPage: React.FC = () => {
         radius={'md'}
         onClose={close}
         size={'55rem'}
-        title={`Capture Face Of Visitor ${currentImageIndex !== null ? currentImageIndex + 1 : ''}`}
+        title={`Photo #${currentImageIndex !== null ? currentImageIndex + 1 : ''}`}
         centered
         style={{ maxWidth: '90vw', maxHeight: '80vh' }}
       >
@@ -739,24 +699,15 @@ export const AddVisitorPage: React.FC = () => {
             <Button w={'50%'} size="md" radius={'md'} variant="outline" onClick={retakePhoto}>
               RETAKE
             </Button>
-            {currentImageIndex !== null &&
-            capturedImages[currentImageIndex] &&
-            croppers[currentImageIndex] &&
-            !cropStatuses[currentImageIndex] ? (
-              <Button w={'50%'} size="md" radius={'md'} onClick={handleCrop}>
-                CROP
-              </Button>
-            ) : (
-              <Button
-                w={'50%'}
-                size="md"
-                radius={'md'}
-                onClick={capturePhoto}
-                disabled={currentImageIndex !== null && capturedImages[currentImageIndex] !== null}
-              >
-                CAPTURE
-              </Button>
-            )}
+            <Button
+              w={'50%'}
+              size="md"
+              radius={'md'}
+              onClick={capturePhoto}
+              disabled={currentImageIndex !== null && capturedImages[currentImageIndex] !== null}
+            >
+              CAPTURE
+            </Button>
           </Flex>
         </Box>
       </Modal>

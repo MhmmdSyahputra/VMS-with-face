@@ -55,3 +55,16 @@ export interface Visitor {
   foto3: string
   statuspengunjung: string
 }
+
+export interface IPayloadHistoryVisitor {
+  idpengunjung: string
+  tanggal: string
+  createby: string
+}
+
+export interface IHistoryVisitor {
+  tanggal: string
+  idgate: string
+  aksi: string
+  lantai: string
+}

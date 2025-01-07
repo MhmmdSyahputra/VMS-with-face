@@ -19,6 +19,7 @@ import 'cropperjs/dist/cropper.css'
 import EmployeeService from '@renderer/services/employee.service'
 import { notifications } from '@mantine/notifications'
 import { IGetDetailEmplooye } from '@renderer/interface/employee.interface'
+import { useParams } from 'react-router-dom'
 
 const initData = {
   valid: 0,
@@ -37,6 +38,7 @@ const initData = {
 }
 
 export const AddEmployeePage: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
   const employeeService = EmployeeService()
   const [formData, setFormData] = useState<IGetDetailEmplooye>(initData)
   const [noKartuInput, setNoKartuInput] = useState<string>('')
@@ -46,6 +48,40 @@ export const AddEmployeePage: React.FC = () => {
   const [cropStatus, setCropperStatus] = useState<boolean>(false)
   const webcamRef = useRef<Webcam>(null)
   const cropperRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    const getDetailMember = async (): Promise<void> => {
+      if (id && id != '0') {
+        setNoKartuInput(id)
+        try {
+          const response = await employeeService.getDetailEmployee(id)
+
+          if (response.msgtext && response.msgtext.length > 0) {
+            notifications.show({
+              color: 'red',
+              position: 'top-right',
+              title: 'Gagal',
+              message: `${response.msgtext}`
+            })
+          }
+
+          if (response.valid == 1) {
+            setFormData(response)
+          }
+        } catch (error) {
+          setFormData(initData)
+          setNoKartuInput('')
+          notifications.show({
+            color: 'red',
+            position: 'top-right',
+            title: 'Gagal',
+            message: 'Terjadi kesalahan pada server!'
+          })
+        }
+      }
+    }
+    getDetailMember()
+  }, [])
 
   const checkNoKartu = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()

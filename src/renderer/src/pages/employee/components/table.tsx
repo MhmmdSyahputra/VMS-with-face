@@ -4,88 +4,39 @@ import {
   Table,
   Button,
   SimpleGrid,
-  Avatar,
   ScrollArea,
-  Badge,
-  Group
+  Loader,
+  Center,
+  Group,
+  ActionIcon
 } from '@mantine/core'
-import React, { useState } from 'react'
-import { TbPlus, TbSearch } from 'react-icons/tb'
-import { Link } from 'react-router-dom'
-interface DataPengunjung {
-  nama: string
-  tanggal: string
-  jammasuk: string
-  jamkeluar: string
-  status: string
+import { IMember } from '@renderer/interface/member.interface'
+import React from 'react'
+import { TbSearch, TbUserSquare } from 'react-icons/tb'
+import { Link, useNavigate } from 'react-router-dom'
+interface HeaderItem {
+  label: string
+  width: string | number
 }
 
-export const TableListEmploye: React.FC = () => {
-  const [dataPengunjung] = useState<DataPengunjung[]>([
-    {
-      nama: 'Muhammad Syahputra',
-      tanggal: '20 Desember 2024',
-      jammasuk: '08:20',
-      jamkeluar: '12:18',
-      status: 'selesai'
-    },
-    {
-      nama: 'Fikri',
-      tanggal: '20 Desember 2024',
-      jammasuk: '09:32',
-      jamkeluar: '10:30',
-      status: 'selesai'
-    },
-    {
-      nama: 'Andika',
-      tanggal: '20 Desember 2024',
-      jammasuk: '10:20',
-      jamkeluar: '13:10',
-      status: 'selesai'
-    },
-    {
-      nama: 'Muhammad Syahputra',
-      tanggal: '20 Desember 2024',
-      jammasuk: '08:20',
-      jamkeluar: '12:18',
-      status: 'selesai'
-    },
-    {
-      nama: 'Fikri',
-      tanggal: '20 Desember 2024',
-      jammasuk: '09:32',
-      jamkeluar: '10:30',
-      status: 'selesai'
-    },
-    {
-      nama: 'Andika',
-      tanggal: '20 Desember 2024',
-      jammasuk: '10:20',
-      jamkeluar: '13:10',
-      status: 'selesai'
-    },
-    {
-      nama: 'Muhammad Syahputra',
-      tanggal: '20 Desember 2024',
-      jammasuk: '08:20',
-      jamkeluar: '12:18',
-      status: 'selesai'
-    },
-    {
-      nama: 'Fikri',
-      tanggal: '20 Desember 2024',
-      jammasuk: '09:32',
-      jamkeluar: '10:30',
-      status: 'selesai'
-    },
-    {
-      nama: 'Andika',
-      tanggal: '20 Desember 2024',
-      jammasuk: '10:20',
-      jamkeluar: '13:10',
-      status: 'selesai'
-    }
-  ])
+interface HeaderTable {
+  header: HeaderItem[]
+}
+
+interface TableVisitorProps {
+  loading: boolean
+  error: string
+  headerTable: HeaderTable
+  member: IMember[]
+}
+
+export const TableEmployee: React.FC<TableVisitorProps> = ({
+  loading,
+  error,
+  headerTable,
+  member
+}) => {
+  const navigate = useNavigate()
 
   return (
     <>
@@ -96,64 +47,68 @@ export const TableListEmploye: React.FC = () => {
         h="100%"
         style={{ display: 'flex', flexDirection: 'column' }}
       >
-        <SimpleGrid cols={2} mb={'md'} spacing="lg" verticalSpacing="lg">
-          <div>
-            <Text fz="lg" fw={700}>
-              Daftar Pegawai
-            </Text>
-          </div>
-          <div className="text-end">
-            <Group justify="flex-end">
-              <Link to="/employee/add">
-                <Button>
-                  <TbSearch className="me-2" /> Cari
-                </Button>
-              </Link>
-              <Link to="/employee/add">
-                <Button variant="outline">
-                  <TbPlus className="me-2" /> Tambah
-                </Button>
-              </Link>
-            </Group>
-          </div>
-        </SimpleGrid>
-        <ScrollArea>
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th w={10}>No</Table.Th>
-                <Table.Th w={100}>Photo</Table.Th>
-                <Table.Th>Nama</Table.Th>
-                <Table.Th w={160}>Tanggal</Table.Th>
-                <Table.Th w={100}>Jam Masuk</Table.Th>
-                <Table.Th w={100}>Jam Keluar</Table.Th>
-                <Table.Th w={100}>Status</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {dataPengunjung.map((data, index) => (
-                <Table.Tr key={index}>
-                  <Table.Td py={20}>{index + 1}</Table.Td>
-                  <Table.Td py={20}>
-                    <Avatar
-                      src={
-                        'https://plus.unsplash.com/premium_photo-1689568126014-06fea9d5d341?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsfGVufDB8fDB8fHww'
-                      }
-                      alt="it's me"
-                    />
-                  </Table.Td>
-                  <Table.Td py={20}>{data.nama}</Table.Td>
-                  <Table.Td py={20}>{data.tanggal}</Table.Td>
-                  <Table.Td py={20}>{data.jammasuk}</Table.Td>
-                  <Table.Td py={20}>{data.jamkeluar}</Table.Td>
-                  <Table.Td py={20}>
-                    <Badge color="blue">{data.status}</Badge>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </ScrollArea>
+        {loading ? (
+          <Loader color="blue" m="auto" />
+        ) : error ? (
+          <Center style={{ height: '100%' }}>{error}</Center>
+        ) : (
+          <>
+            <SimpleGrid cols={2} mb={'md'} spacing="lg" verticalSpacing="lg">
+              <div>
+                <Text fz="lg" fw={700}>
+                  Daftar Karyawan
+                </Text>
+              </div>
+              <div className="text-end">
+                <Group justify="flex-end">
+                  <Link to="/employee/detail/0">
+                    <Button>
+                      <TbSearch className="me-2" /> Cari
+                    </Button>
+                  </Link>
+                </Group>
+              </div>
+            </SimpleGrid>
+            <ScrollArea>
+              <Table verticalSpacing="md" striped highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    {headerTable.header.map((item, index) => (
+                      <Table.Th
+                        key={index}
+                        fw={700}
+                        style={{
+                          width: typeof item.width === 'number' ? `${item.width}px` : item.width
+                        }}
+                      >
+                        {item.label}
+                      </Table.Th>
+                    ))}
+                    <Table.Th fw={700} w={80}>
+                      Aksi
+                    </Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody style={{ cursor: 'pointer' }}>
+                  {member.map((visitor, index) => (
+                    <Table.Tr key={index}>
+                      <Table.Td>{visitor.kodemember}</Table.Td>
+                      <Table.Td>{visitor.nama}</Table.Td>
+                      <Table.Td>{visitor.namaprsh}</Table.Td>
+                      <Table.Td>{visitor.telp}</Table.Td>
+                      <Table.Td>{visitor.noktp}</Table.Td>
+                      <Table.Td onClick={() => navigate(`/employee/detail/${visitor.kodemember}`)}>
+                        <ActionIcon variant="filled" aria-label="Settings">
+                          <TbUserSquare style={{ width: '70%', height: '70%' }} />
+                        </ActionIcon>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </ScrollArea>
+          </>
+        )}
       </Paper>
     </>
   )

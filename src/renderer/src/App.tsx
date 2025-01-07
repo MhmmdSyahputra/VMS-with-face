@@ -99,7 +99,7 @@ function SidebarLayout(): JSX.Element {
         <Route path="/visitor/add" element={<AddVisitorPage />} />
         <Route path="/visitor" element={<VisitorPage />} />
         <Route path="/employee" element={<EmployeePage />} />
-        <Route path="/employee/add" element={<AddEmployeePage />} />
+        <Route path="/employee/detail/:id" element={<AddEmployeePage />} />
         <Route path="*" element={<div>Page Not Found</div>} />
       </Routes>
     </Sidebar>
