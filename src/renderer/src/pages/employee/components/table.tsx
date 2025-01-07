@@ -8,7 +8,8 @@ import {
   Loader,
   Center,
   Group,
-  ActionIcon
+  ActionIcon,
+  Avatar
 } from '@mantine/core'
 import { IMember } from '@renderer/interface/member.interface'
 import React from 'react'
@@ -73,6 +74,7 @@ export const TableEmployee: React.FC<TableVisitorProps> = ({
               <Table verticalSpacing="md" striped highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
+                    <Table.Th w={50}></Table.Th>
                     {headerTable.header.map((item, index) => (
                       <Table.Th
                         key={index}
@@ -92,6 +94,9 @@ export const TableEmployee: React.FC<TableVisitorProps> = ({
                 <Table.Tbody style={{ cursor: 'pointer' }}>
                   {member.map((visitor, index) => (
                     <Table.Tr key={index}>
+                      <Table.Th>
+                        <Avatar src={visitor.nama} alt={visitor.nama} size={40} />
+                      </Table.Th>
                       <Table.Td>{visitor.kodemember}</Table.Td>
                       <Table.Td>{visitor.nama}</Table.Td>
                       <Table.Td>{visitor.namaprsh}</Table.Td>

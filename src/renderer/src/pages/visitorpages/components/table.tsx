@@ -106,7 +106,7 @@ export const TableVisitor: React.FC<TableVisitorProps> = ({
               <Table verticalSpacing="md" striped highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th></Table.Th>
+                    <Table.Th w={50}></Table.Th>
                     {headerTable.header.map((item, index) => (
                       <Table.Th
                         key={index}

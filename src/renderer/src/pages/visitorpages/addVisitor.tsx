@@ -373,6 +373,14 @@ export const AddVisitorPage: React.FC = () => {
                     placeholder=""
                     name="telp"
                     value={formData.telp}
+                    onKeyPress={(event) => {
+                      if (!/[0-9]/.test(event.key)) {
+                        event.preventDefault()
+                      }
+                      if (event.key === ' ') {
+                        event.preventDefault()
+                      }
+                    }}
                     onChange={handleInputChange}
                   />
                 </Input.Wrapper>
@@ -502,6 +510,14 @@ export const AddVisitorPage: React.FC = () => {
                       bg={'gray.1'}
                       c={'gray'}
                       onClick={() => {
+                        if (index > 0 && !capturedImages[index - 1]) {
+                          return notifications.show({
+                            color: 'red',
+                            position: 'top-right',
+                            title: '',
+                            message: `Harap Photo #${index} dahulu`
+                          })
+                        }
                         setCurrentImageIndex(index)
                         open()
                       }}
@@ -699,15 +715,21 @@ export const AddVisitorPage: React.FC = () => {
             <Button w={'50%'} size="md" radius={'md'} variant="outline" onClick={retakePhoto}>
               RETAKE
             </Button>
-            <Button
-              w={'50%'}
-              size="md"
-              radius={'md'}
-              onClick={capturePhoto}
-              disabled={currentImageIndex !== null && capturedImages[currentImageIndex] !== null}
-            >
-              CAPTURE
-            </Button>
+            {currentImageIndex !== null && capturedImages[currentImageIndex] !== null ? (
+              <Button w={'50%'} size="md" radius={'md'} onClick={close}>
+                SELESAI
+              </Button>
+            ) : (
+              <Button
+                w={'50%'}
+                size="md"
+                radius={'md'}
+                onClick={capturePhoto}
+                // disabled={currentImageIndex !== null && capturedImages[currentImageIndex] !== null}
+              >
+                CAPTURE
+              </Button>
+            )}
           </Flex>
         </Box>
       </Modal>
