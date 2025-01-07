@@ -1,114 +1,111 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="text/javascript" src="qrcode.js"></script>
+    <!-- <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> -->
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
-  <script type="text/javascript" src="qrcode.js"></script>
-  <!-- <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> -->
+    <style>
+      @font-face {
+        font-family: gilroy-bold;
+        src: url(./../../../assets/font/Gilroy-ExtraBold.otf);
+      }
 
-  <style>
-    @font-face {
-      font-family: gilroy-bold;
-      src: url(./../../../assets/font/Gilroy-ExtraBold.otf);
-    }
+      @font-face {
+        font-family: gilroy-light;
+        src: url(./../../../assets/font/Gilroy-Light.otf);
+      }
 
-    @font-face {
-      font-family: gilroy-light;
-      src: url(./../../../assets/font/Gilroy-Light.otf);
-    }
+      * {
+        font-family: 'consolas';
+      }
 
-    * {
-      font-family: 'consolas';
-    }
+      #header1 {
+        font-weight: bold;
+        /* font-family: gilroy-bold; */
+        /* text-align: center; */
+        font-weight: 900;
+        font-size: 18px;
+      }
 
-    #header1 {
-      font-weight: bold;
-      /* font-family: gilroy-bold; */
-      /* text-align: center; */
-      font-weight: 900;
-      font-size: 42px;
-    }
+      #header2 {
+        font-size: 18px;
+      }
 
-    #header2 {
-      font-size: 38px;
-      /* text-align: center; */
-      margin-bottom: 50px;
-    }
+      .label {
+        font-size: 18px;
+      }
 
-    .label {
-      font-size: 38px;
-    }
+      #qrcode {
+        margin-top: 35px;
+        margin-bottom: 35px;
+      }
 
-    #qrcode {
-      text-align: center;
-      margin: 0 auto;
-      width: 350px;
-      height: 350px;
-      margin-bottom: 50px;
-    }
+      .isi {
+        margin-bottom: 20px;
+        font-size: 18px;
+        text-transform: uppercase;
+        font-weight: bold;
+        /* font-family: gilroy-bold; */
+      }
 
-    .isi {
-      margin-bottom: 20px;
-      font-size: 38px;
-      text-transform: uppercase;
-      font-weight: bold;
-      /* font-family: gilroy-bold; */
-    }
+      .dest1 {
+        font-size: 18px;
+        text-transform: uppercase;
+        /* font-family: gilroy-bold; */
+        font-weight: bold;
+      }
 
-    .dest1 {
-      font-size: 38px;
-      text-transform: uppercase;
-      /* font-family: gilroy-bold; */
-      font-weight: bold;
-    }
+      .dest2 {
+        font-size: 18px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        /* font-family: gilroy-bold; */
+        font-weight: bold;
+      }
 
-    .dest2 {
-      font-size: 38px;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      /* font-family: gilroy-bold; */
-      font-weight: bold;
-    }
+      #footer1 {
+        font-size: 36px;
+        text-align: center;
+      }
 
-    #footer1 {
-      font-size: 36px;
-      text-align: center;
-    }
+      #footer2 {
+        font-size: 36px;
+        text-align: center;
+      }
 
-    #footer2 {
-      font-size: 36px;
-      text-align: center;
-    }
-  </style>
+      .cq {
+        text-align: center;
+      }
+    </style>
+  </head>
 
-</head>
-
-<body>
-  <div id="header1"></div>
-  <div id="header2"></div>
-  <div id="qrcode"></div>
-  <div class="label">FULL NAME</div>
-  <div id="fullname" class="isi"></div>
-  <div class="label">ID NUMBER</div>
-  <div id="idnumber" class="isi"></div>
-  <div class="label">DESTINATION</div>
-  <div id="destination" class="dest1"></div>
-  <div id="lantai" class="dest2"></div>
-  <div id="footer1"></div>
-  <div id="footer2"></div>
-
-</body>
-<script>
-
-  // console.log(localStorage['barcode']);
-  var code = '';
-  var qrcode = new QRCode(document.getElementById("qrcode"), {
-    text: code,
-    width: 350,
-    height: 350
-  });
-</script>
-
+  <body>
+    <div id="header1"></div>
+    <div id="header2"></div>
+    <div class="cq">
+      <div id="qrcode"></div>
+    </div>
+    <div class="label">FULL NAME</div>
+    <div id="fullname" class="isi"></div>
+    <div class="label">ID NUMBER</div>
+    <div id="idnumber" class="isi"></div>
+    <div class="label">DESTINATION</div>
+    <div id="destination" class="dest1"></div>
+    <div id="lantai" class="dest2"></div>
+    <div id="footer1"></div>
+    <div id="footer2"></div>
+  </body>
+  <script>
+    // console.log(localStorage['barcode']);
+    let url = new URL(location)
+    var codeqr = url.searchParams.get('code')
+    var qrcode = new QRCode(document.getElementById('qrcode'), {
+      text: codeqr,
+      width: 150,
+      height: 150
+    })
+  </script>
 </html>

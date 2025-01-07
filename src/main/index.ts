@@ -41,8 +41,6 @@ function createWindow(): void {
 }
 
 ipcMain.on('print-entrance-ticket', (_, data) => {
-  console.log(data)
-
   const rWin = new BrowserWindow({
     show: false,
     webPreferences: {
@@ -56,11 +54,8 @@ ipcMain.on('print-entrance-ticket', (_, data) => {
   })
 
   const RESOURCES_PATH_PRINT = app.isPackaged
-    ? path.join(
-        process.resourcesPath,
-        `resources/resources/receipt/print.html?code='${data.codeAPI}'`
-      )
-    : path.join(__dirname, `../../resources/receipt/print.html?code='${data.codeAPI}'`)
+    ? path.join(process.resourcesPath, `resources/receipt/print.html?code=${data.codeAPI}`)
+    : path.join(__dirname, `../../resources/receipt/print.html?code=${data.codeAPI}`)
 
   // rWin.loadFile(RESOURCES_PATH_PRINT);
   rWin.loadURL(RESOURCES_PATH_PRINT).then(() => {
@@ -91,7 +86,7 @@ ipcMain.on('print-entrance-ticket', (_, data) => {
         footer: 'Footer of the Page',
         collate: false
       })
-    }, 2000) // Sesuaikan timeout sesuai kebutuhan Anda
+    }, 100) // Sesuaikan timeout sesuai kebutuhan Anda
   })
 })
 

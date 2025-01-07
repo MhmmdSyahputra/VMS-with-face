@@ -213,15 +213,15 @@ export const Titlebar: React.FC = () => {
       </Modal>
 
       {/* Modal Konfirmasi Close */}
-      <Modal opened={openedConfirm} onClose={closeConfirm} title="Confirmation?">
-        <Text>Do you want to exit the application?</Text>
+      <Modal opened={openedConfirm} onClose={closeConfirm} title="Konfirmasi Keluar">
+        <Text>Apakah kamu ingin keluar aplikasi?</Text>
         <Divider my="md" />
         <Flex justify="flex-end" gap="md">
           <Button variant="default" onClick={closeConfirm}>
-            Cancel
+            Tidak
           </Button>
           <Button color="red" onClick={confirmClose}>
-            Yes
+            Ya
           </Button>
         </Flex>
       </Modal>

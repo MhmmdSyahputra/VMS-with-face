@@ -12,6 +12,7 @@ import { MantineProvider } from '@mantine/core'
 import { Titlebar } from './components/titleBar'
 import { Notifications } from '@mantine/notifications'
 import { useEffect, useState } from 'react'
+// import PrivateRoute from './providers/privateRoute.provider'
 
 function App(): JSX.Element {
   return (
@@ -95,6 +96,12 @@ function SidebarLayout(): JSX.Element {
   return (
     <Sidebar>
       <Routes>
+        {/* <Route path="/" element={<PrivateRoute Component={HomePage} />} />
+        <Route path="/visitor/add" element={<PrivateRoute Component={AddVisitorPage} />} />
+        <Route path="/visitor" element={<PrivateRoute Component={VisitorPage} />} />
+        <Route path="/employee" element={<PrivateRoute Component={EmployeePage} />} />
+        <Route path="/employee/detail/:id" element={<PrivateRoute Component={AddEmployeePage} />} />
+        <Route path="*" element={<div>Page Not Found</div>} /> */}
         <Route path="/" element={<HomePage />} />
         <Route path="/visitor/add" element={<AddVisitorPage />} />
         <Route path="/visitor" element={<VisitorPage />} />

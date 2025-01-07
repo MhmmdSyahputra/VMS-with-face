@@ -55,6 +55,24 @@ export const AddVisitorPage: React.FC = () => {
   const [dataDestination, setDataDestination] = useState<{ label: string; value: string }[]>([])
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null)
 
+  const inputRefs = Array.from({ length: 5 }, () => useRef<HTMLInputElement>(null))
+  const selectRefs = Array.from({ length: 2 }, () => useRef<never>(null)) // Menggunakan 'any' untuk ref Select Mantine
+
+  const allRefs = [...inputRefs, ...selectRefs]
+
+  const handleNextInput = (
+    event: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+    index: number
+  ): void => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      const nextRef = allRefs[index + 1]?.current
+      if (nextRef) {
+        nextRef.focus()
+      }
+    }
+  }
+
   const [dataSex] = useState<{ label: string; value: string }[]>([
     { label: 'Laki-laki', value: '1' },
     { label: 'Prempuan', value: '0' }
@@ -103,8 +121,8 @@ export const AddVisitorPage: React.FC = () => {
 
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {}
-    if (!formData.nama) errors.nama = 'Full name is required'
-    if (!formData.telp) errors.telp = 'Phone number is required'
+    if (!formData.nama) errors.nama = 'Fullname wajib diisi'
+    if (!formData.telp) errors.telp = 'No. Telp wajib diisi'
     if (!formData.sex) errors.sex = 'Gender is required'
     if (!selectedDestination) errors.destination = 'Destination is required'
     if (!selectedReason) errors.reason = 'Reason is required'
@@ -341,29 +359,29 @@ export const AddVisitorPage: React.FC = () => {
                 <Input.Wrapper
                   label="FULL NAME"
                   withAsterisk
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
+                  styles={{ label: { marginBottom: '5px' } }}
                   error={errorDataConfig.nama}
                   mb={15}
                 >
                   <Input
+                    autoFocus
                     size="md"
                     radius="md"
                     placeholder=""
                     name="nama"
                     value={formData.nama}
                     onChange={handleInputChange}
+                    onKeyDown={(event) => handleNextInput(event, 0)}
+                    ref={inputRefs[0]}
                   />
                 </Input.Wrapper>
               </Grid.Col>
+
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="PHONE NUMBER"
                   withAsterisk
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
+                  styles={{ label: { marginBottom: '5px' } }}
                   error={errorDataConfig.telp}
                   mb={15}
                 >
@@ -382,17 +400,14 @@ export const AddVisitorPage: React.FC = () => {
                       }
                     }}
                     onChange={handleInputChange}
+                    onKeyDown={(event) => handleNextInput(event, 1)}
+                    ref={inputRefs[1]}
                   />
                 </Input.Wrapper>
               </Grid.Col>
+
               <Grid.Col span={12} py={0}>
-                <Input.Wrapper
-                  label="E-MAIL"
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
-                  mb={15}
-                >
+                <Input.Wrapper label="E-MAIL" styles={{ label: { marginBottom: '5px' } }} mb={15}>
                   <Input
                     size="md"
                     radius="md"
@@ -400,17 +415,14 @@ export const AddVisitorPage: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    onKeyDown={(event) => handleNextInput(event, 2)}
+                    ref={inputRefs[2]}
                   />
                 </Input.Wrapper>
               </Grid.Col>
+
               <Grid.Col span={12} py={0}>
-                <Input.Wrapper
-                  label="GENDER"
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
-                  mb={15}
-                >
+                <Input.Wrapper label="GENDER" styles={{ label: { marginBottom: '5px' } }} mb={15}>
                   <Select
                     allowDeselect={false}
                     size="md"
@@ -419,17 +431,17 @@ export const AddVisitorPage: React.FC = () => {
                     data={dataSex}
                     value={selectedSex}
                     name="sex"
-                    // value={formData.sex}
                     onChange={(value) => setSelectedSex(value)}
+                    onKeyDown={(event) => handleNextInput(event, 3)}
+                    ref={selectRefs[0]} // Menggunakan ref khusus untuk Select
                   />
                 </Input.Wrapper>
               </Grid.Col>
+
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="COMPANY OF VISITOR"
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
+                  styles={{ label: { marginBottom: '5px' } }}
                   mb={15}
                 >
                   <Input
@@ -439,15 +451,16 @@ export const AddVisitorPage: React.FC = () => {
                     name="comp_visit"
                     value={formData.comp_visit}
                     onChange={handleInputChange}
+                    onKeyDown={(event) => handleNextInput(event, 4)}
+                    ref={inputRefs[3]}
                   />
                 </Input.Wrapper>
               </Grid.Col>
+
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="DESTINATION"
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
+                  styles={{ label: { marginBottom: '5px' } }}
                   error={errorDataConfig.destination}
                   mb={15}
                 >
@@ -459,15 +472,16 @@ export const AddVisitorPage: React.FC = () => {
                     data={dataDestination}
                     value={selectedDestination}
                     onChange={(value) => setSelectedDestination(value)}
+                    onKeyDown={(event) => handleNextInput(event, 5)}
+                    ref={selectRefs[1]} // Menggunakan ref khusus untuk Select
                   />
                 </Input.Wrapper>
               </Grid.Col>
+
               <Grid.Col span={12} py={0}>
                 <Input.Wrapper
                   label="CONTACT PERSON"
-                  styles={{
-                    label: { marginBottom: '5px' }
-                  }}
+                  styles={{ label: { marginBottom: '5px' } }}
                   mb={15}
                 >
                   <Input
@@ -477,6 +491,8 @@ export const AddVisitorPage: React.FC = () => {
                     name="cp"
                     value={formData.cp}
                     onChange={handleInputChange}
+                    onKeyDown={(event) => handleNextInput(event, 6)}
+                    ref={inputRefs[4]}
                   />
                 </Input.Wrapper>
               </Grid.Col>
@@ -511,12 +527,13 @@ export const AddVisitorPage: React.FC = () => {
                       c={'gray'}
                       onClick={() => {
                         if (index > 0 && !capturedImages[index - 1]) {
-                          return notifications.show({
+                          notifications.show({
                             color: 'red',
                             position: 'top-right',
                             title: '',
                             message: `Harap Photo #${index} dahulu`
                           })
+                          return
                         }
                         setCurrentImageIndex(index)
                         open()

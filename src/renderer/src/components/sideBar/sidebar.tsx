@@ -4,6 +4,7 @@ import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core'
 import classes from './sidebar.module.css'
 import { useNavigate } from 'react-router-dom'
 import Logo from '@assets/icon.png'
+import AuthService from '@renderer/services/auth.service'
 
 interface NavbarLinkProps {
   icon: typeof TbHome2
@@ -49,7 +50,7 @@ interface SidebarProps {
 
 // eslint-disable-next-line react/prop-types
 export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
-  const navigate = useNavigate()
+  const authService = AuthService()
   const [active, setActive] = useState(0)
 
   const links = mockdata.map((link, index) => (
@@ -63,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
   ))
 
   const logoutSession = (): void => {
-    navigate('/login')
+    authService.logout()
   }
 
   return (
