@@ -27,7 +27,7 @@ export const LoginPage: React.FC = () => {
   const [loadingFormLogin, setloadingFormLogin] = useState(false)
   const [, setCookieLogin] = useCookie('userLoginCookie', '')
 
-  const handleCekLicenseKey = async (): Promise<void> => {
+  const checkLicenseKey = async (): Promise<void> => {
     window.electron.ipcRenderer.send('get-deviceID')
 
     let secProductId = 'no'
@@ -61,12 +61,19 @@ export const LoginPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      await handleCekLicenseKey()
-      // setLoadingScreen(false);
+      await checkLicenseKey()
     }
 
     fetchData()
   }, [])
+
+  const checkExpired = (): boolean => {
+    const currentDate = new Date()
+    const expirationDate = new Date('2025-01-01')
+    const currentYear = currentDate.getFullYear()
+    const expirationYear = expirationDate.getFullYear()
+    return currentYear <= expirationYear
+  }
 
   const handleNextInput = (
     event: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,
@@ -102,7 +109,6 @@ export const LoginPage: React.FC = () => {
 
   const handleLogin = async (): Promise<void> => {
     if (!validateForm()) return
-
     setloadingFormLogin(true)
 
     if (!licenseIs) {
@@ -115,6 +121,18 @@ export const LoginPage: React.FC = () => {
       setloadingFormLogin(false)
       return
     }
+
+    if (!checkExpired()) {
+      notifications.show({
+        color: 'red',
+        position: 'top-right',
+        title: 'Akses ditolak!',
+        message: `Masa trial sudah habis! Harap hubungi SISTEMPARKIR.COM`
+      })
+      setloadingFormLogin(false)
+      return
+    }
+
     try {
       const response = await authService.authLogin(formLogin)
       if (response.valid === 1) {
