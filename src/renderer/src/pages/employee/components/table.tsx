@@ -95,7 +95,7 @@ export const TableEmployee: React.FC<TableVisitorProps> = ({
                   {member.map((visitor, index) => (
                     <Table.Tr key={index}>
                       <Table.Th>
-                        <Avatar src={visitor.nama} alt={visitor.nama} size={40} />
+                        <Avatar src={visitor.foto} alt={visitor.foto} size={40} />
                       </Table.Th>
                       <Table.Td>{visitor.kodemember}</Table.Td>
                       <Table.Td>{visitor.nama}</Table.Td>

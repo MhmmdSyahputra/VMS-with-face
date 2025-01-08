@@ -12,15 +12,15 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ Component }) => {
   const userLoginCookie = cookieLogin ? JSON.parse(cookieLogin) : null
 
   useEffect(() => {
-    const checkToken = async (): Promise<void> => {
-      if (userLoginCookie && userLoginCookie.token) {
+    const checkUserId = async (): Promise<void> => {
+      if (userLoginCookie && userLoginCookie.userid) {
         setIsValid(true)
       } else {
         setIsValid(false)
       }
     }
 
-    checkToken()
+    checkUserId()
   }, [userLoginCookie])
 
   if (isValid === null) {

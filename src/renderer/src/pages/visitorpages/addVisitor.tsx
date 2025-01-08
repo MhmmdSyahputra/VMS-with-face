@@ -130,16 +130,16 @@ export const AddVisitorPage: React.FC = () => {
     if (!formData.sex) errors.sex = 'Gender is required'
     if (!selectedDestination) errors.destination = 'Destination is required'
     if (!selectedReason) errors.reason = 'Reason is required'
+    if (selectedTypeAccess == '0') {
+      if (!formData.nokartuakses) errors.nokartuakses = 'No. Kartu wajib diisi'
+    }
 
     setErrorDataConfig(errors)
     return Object.keys(errors).length === 0
   }
 
   const handleSubmit = async (): Promise<void> => {
-    if (!validateForm()) {
-      console.log('Form submitted:', formData)
-      return
-    }
+    if (!validateForm()) return
 
     setLoadingSubmit(true)
     const getConfig = localStorage.getItem('dataConfig')
@@ -674,7 +674,7 @@ export const AddVisitorPage: React.FC = () => {
                     styles={{
                       label: { marginBottom: '5px' }
                     }}
-                    error={errorDataConfig.dest}
+                    error={errorDataConfig.nokartuakses}
                     mb={15}
                   >
                     <Input

@@ -55,10 +55,8 @@ export const LoginPage: React.FC = () => {
   }
 
   const handleLogin = async (): Promise<void> => {
-    if (!validateForm()) {
-      console.log('Form submitted:', formLogin)
-      return
-    }
+    if (!validateForm()) return
+
     setloadingFormLogin(true)
     try {
       const response = await authService.authLogin(formLogin)
@@ -72,7 +70,7 @@ export const LoginPage: React.FC = () => {
         notifications.show({
           color: 'red',
           position: 'top-right',
-          title: 'Gagal',
+          title: 'Login Gagal',
           message: `${response.msgtext}`
         })
       }
