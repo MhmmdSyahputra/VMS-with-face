@@ -26,6 +26,7 @@ import VisitorService from '@renderer/services/visitor.service'
 import { notifications } from '@mantine/notifications'
 import { cekWaktu } from '@renderer/utils/myFunction'
 import { useNavigate } from 'react-router-dom'
+import { useDataConfig } from '@renderer/providers/config.provider'
 
 interface FormData {
   nama: string
@@ -43,6 +44,9 @@ export const AddVisitorPage: React.FC = () => {
   const navigate = useNavigate()
   const configService = ConfigService()
   const visitorService = VisitorService()
+
+  const { footer1, footer2, header, subheader1, subheader2 } = useDataConfig()
+
   const [formData, setFormData] = useState<FormData>({
     nama: '',
     telp: '',
@@ -196,15 +200,16 @@ export const AddVisitorPage: React.FC = () => {
       if (response.valid === 1) {
         if (selectedTypeAccess !== '0') {
           const dataToprint = {
-            header1: 'header1',
-            header2: 'header2',
+            header1: header,
+            header2: subheader1,
+            header3: subheader2,
             codeAPI: response.kodetiket,
             fullName: formData.nama,
             idNumber: formData.nokartuakses,
             destination: selectedDestination!.split(';')[1]!,
             lantai: selectedDestination!.split(';')[3]!,
-            footer1: 'footer1',
-            footer2: 'footer2'
+            footer1: footer1,
+            footer2: footer2
           }
           window.electron.ipcRenderer.send('print-entrance-ticket', dataToprint)
         }

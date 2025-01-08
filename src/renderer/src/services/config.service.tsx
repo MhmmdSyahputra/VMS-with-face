@@ -3,6 +3,7 @@ import { IGetDestination } from '@renderer/interface/destination.interface'
 import { IGetReason } from '@renderer/interface/reason.interface'
 import { IGetDataStats } from '@renderer/interface/stats.interface'
 import axios, { AxiosResponse } from 'axios'
+import { IDataConfigApi } from '@renderer/interface/config.interface'
 
 interface ConfigService {
   getDataStats: () => Promise<IGetDataStats>
@@ -11,6 +12,7 @@ interface ConfigService {
   getReason: () => Promise<IGetReason[]>
   getListTime: () => Promise<{ jam: string }[]>
   getDate: () => Promise<{ tanggal: string }>
+  getConfig: () => Promise<IDataConfigApi>
 }
 
 const ConfigService = (): ConfigService => {
@@ -92,13 +94,27 @@ const ConfigService = (): ConfigService => {
     }
   }
 
+  const getConfig = async (): Promise<IDataConfigApi> => {
+    try {
+      const response: AxiosResponse<IDataConfigApi> = await axios.get(
+        `${apiUrl}?secretkey=${secretCode}&tipe=dataConfig`
+      )
+      console.log(response)
+      return response.data
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
   return {
     getDataStats,
     getDestination,
     getTypeAccess,
     getReason,
     getListTime,
-    getDate
+    getDate,
+    getConfig
   }
 }
 
