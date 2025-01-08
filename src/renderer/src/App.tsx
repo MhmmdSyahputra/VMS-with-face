@@ -14,8 +14,15 @@ import { Notifications } from '@mantine/notifications'
 import { useEffect, useState } from 'react'
 import PrivateRoute from './providers/privateRoute.provider'
 import { ConfigProvider } from './providers/config.provider'
+import useCookie from 'react-use-cookie'
 
 function App(): JSX.Element {
+  const [, setCookieLogin] = useCookie('userLoginCookie', '')
+
+  useEffect(() => {
+    setCookieLogin('')
+  }, [])
+
   window.addEventListener('keydown', (e) => {
     const { key, altKey } = e
     //disable alt+f4 for close
