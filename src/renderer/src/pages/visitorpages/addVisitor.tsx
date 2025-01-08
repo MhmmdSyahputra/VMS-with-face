@@ -305,13 +305,25 @@ export const AddVisitorPage: React.FC = () => {
   const getTimeEnd = async (): Promise<void> => {
     try {
       const response = await configService.getListTime()
-      const transformedData = response.map((item) => ({
-        label: `${item.jam}`,
-        value: `${item.jam}`
-      }))
 
-      setSelectedTimeEnd(transformedData[0].value)
+      const currentTime = new Date()
+      const currentHour = currentTime.getHours().toString().padStart(2, '0')
+      const currentMinutes = currentTime.getMinutes().toString().padStart(2, '0')
+      const curentTime = `${currentHour}:${currentMinutes}`
+
+      const transformedData = response.map((item) => {
+        const isDisabled = item.jam <= curentTime
+        return {
+          label: `${item.jam}`,
+          value: `${item.jam}`,
+          disabled: isDisabled
+        }
+      })
+
       setDataTimeEnd(transformedData)
+
+      const nextAvailableTime = transformedData.find((item) => !item.disabled)?.value
+      setSelectedTimeEnd(nextAvailableTime || '23:00')
     } catch (error) {
       console.log(error)
     }
@@ -715,7 +727,9 @@ export const AddVisitorPage: React.FC = () => {
                     data={dataTimeEnd}
                     value={selectedTimeEnd}
                     onChange={(value) => {
-                      if (cekWaktu(value!) === false) {
+                      if (cekWaktu(value!)) {
+                        setSelectedTimeEnd(value)
+                      } else {
                         notifications.show({
                           color: 'red',
                           position: 'top-right',
@@ -723,7 +737,6 @@ export const AddVisitorPage: React.FC = () => {
                           message: `Please check the ending time of your chosen visit`
                         })
                       }
-                      setSelectedTimeEnd(value)
                     }}
                   />
                 </Input.Wrapper>
