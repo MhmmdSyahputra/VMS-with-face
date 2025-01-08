@@ -73,7 +73,6 @@ const ConfigService = (): ConfigService => {
       const response: AxiosResponse<{ jam: string }[]> = await axios.get(
         `${apiUrl}?secretkey=${secretCode}&tipe=listJam`
       )
-      console.log(response)
       return response.data
     } catch (error) {
       console.error(error)
@@ -86,7 +85,6 @@ const ConfigService = (): ConfigService => {
       const response: AxiosResponse<{ tanggal: string }> = await axios.get(
         `${apiUrl}?secretkey=${secretCode}&tipe=getDate`
       )
-      console.log(response)
       return response.data
     } catch (error) {
       console.error(error)
@@ -99,7 +97,6 @@ const ConfigService = (): ConfigService => {
       const response: AxiosResponse<IDataConfigApi> = await axios.get(
         `${apiUrl}?secretkey=${secretCode}&tipe=dataConfig`
       )
-      console.log(response)
       return response.data
     } catch (error) {
       console.error(error)

@@ -29,8 +29,6 @@ export const EmployeePage: React.FC = () => {
           width: isNaN(Number(width)) ? width : Number(width)
         }))
       }
-      console.log(response);
-      
       setHeaderTable(formattedHeader)
       await getDataVisitor()
     } catch (error) {

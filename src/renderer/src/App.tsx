@@ -16,12 +16,37 @@ import PrivateRoute from './providers/privateRoute.provider'
 import { ConfigProvider } from './providers/config.provider'
 
 function App(): JSX.Element {
+  window.addEventListener('keydown', (e) => {
+    const { key, altKey } = e
+    //disable alt+f4 for close
+    if (key === 'F4' && altKey) {
+      e.preventDefault()
+    }
+    if (key === 'w' && e.ctrlKey) {
+      e.preventDefault()
+    }
+    //disable f for taskbar
+    if (key === 'f' && altKey) {
+      e.preventDefault()
+    }
+    //disable F12 for minimize
+    if (key === 'F11') {
+      e.preventDefault()
+    }
+
+    if (key == 'r' && e.ctrlKey) {
+      e.preventDefault()
+      window.location.reload()
+    }
+  })
   return (
     <Router>
       <MantineProvider>
         <Notifications />
         <Titlebar />
-        <MainLayout />
+        <ConfigProvider>
+          <MainLayout />
+        </ConfigProvider>
       </MantineProvider>
     </Router>
   )
@@ -53,30 +78,6 @@ function MainLayout(): JSX.Element {
     setLoading(false)
   }, [])
 
-  window.addEventListener('keydown', (e) => {
-    const { key, altKey } = e
-    //disable alt+f4 for close
-    if (key === 'F4' && altKey) {
-      e.preventDefault()
-    }
-    if (key === 'w' && e.ctrlKey) {
-      e.preventDefault()
-    }
-    //disable f for taskbar
-    if (key === 'f' && altKey) {
-      e.preventDefault()
-    }
-    //disable F12 for minimize
-    if (key === 'F11') {
-      e.preventDefault()
-    }
-
-    if (key == 'r' && e.ctrlKey) {
-      e.preventDefault()
-      window.location.reload()
-    }
-  })
-
   if (loading) {
     return <div>Loading...</div> // Replace this with a proper loading spinner if needed
   }
@@ -96,26 +97,21 @@ function LoginRoutes(): JSX.Element {
 function SidebarLayout(): JSX.Element {
   return (
     <Sidebar>
-      <ConfigProvider>
-        <Routes>
-          <Route path="/" element={<PrivateRoute Component={HomePage} />} />
-          <Route path="/visitor/add" element={<PrivateRoute Component={AddVisitorPage} />} />
-          <Route path="/visitor" element={<PrivateRoute Component={VisitorPage} />} />
-          <Route path="/employee" element={<PrivateRoute Component={EmployeePage} />} />
-          <Route
-            path="/employee/detail/:id"
-            element={<PrivateRoute Component={AddEmployeePage} />}
-          />
-          <Route path="*" element={<div>Page Not Found</div>} />
+      <Routes>
+        <Route path="/" element={<PrivateRoute Component={HomePage} />} />
+        <Route path="/visitor/add" element={<PrivateRoute Component={AddVisitorPage} />} />
+        <Route path="/visitor" element={<PrivateRoute Component={VisitorPage} />} />
+        <Route path="/employee" element={<PrivateRoute Component={EmployeePage} />} />
+        <Route path="/employee/detail/:id" element={<PrivateRoute Component={AddEmployeePage} />} />
+        <Route path="*" element={<div>Page Not Found</div>} />
 
-          {/* <Route path="/" element={<HomePage />} />
+        {/* <Route path="/" element={<HomePage />} />
           <Route path="/visitor/add" element={<AddVisitorPage />} />
           <Route path="/visitor" element={<VisitorPage />} />
           <Route path="/employee" element={<EmployeePage />} />
           <Route path="/employee/detail/:id" element={<AddEmployeePage />} />
           <Route path="*" element={<div>Page Not Found</div>} /> */}
-        </Routes>
-      </ConfigProvider>
+      </Routes>
     </Sidebar>
   )
 }

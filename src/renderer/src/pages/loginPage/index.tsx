@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button, Center, Paper, PasswordInput, TextInput, Title } from '@mantine/core'
 import classes from './login.module.css'
 import { useNavigate } from 'react-router-dom'
@@ -7,20 +7,66 @@ import useCookie from 'react-use-cookie'
 import { notifications } from '@mantine/notifications'
 import AuthService from '@renderer/services/auth.service'
 import { IPayloadLogin } from '@renderer/interface/auth.interface'
+import { getDigitMD5Serial, recursiveMD5 } from '@renderer/utils/myFunction'
+import { IDataConfig } from '@renderer/interface/config.interface'
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const authService = AuthService()
   const inputRefs = Array.from({ length: 2 }, () => useRef<HTMLInputElement>(null))
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const getConfig = localStorage.getItem('dataConfig')
+  const dataConfig: IDataConfig = JSON.parse(getConfig!)
 
   const [formLogin, setFormLogin] = useState<IPayloadLogin>({
     userid: '',
     passuser: ''
   })
+  const [licenseIs, setLicenseIs] = useState<boolean>(false)
   const [errorDataLogin, setErrorDataConfig] = useState<{ [key: string]: string }>({})
   const [loadingFormLogin, setloadingFormLogin] = useState(false)
   const [, setCookieLogin] = useCookie('userLoginCookie', '')
+
+  const handleCekLicenseKey = async (): Promise<void> => {
+    window.electron.ipcRenderer.send('get-deviceID')
+
+    let secProductId = 'no'
+    let secLicense = 'no'
+
+    const handleResponse = (_: Electron.IpcRendererEvent, data: string): void => {
+      secProductId = data.replace('UUID', '').trim()
+    }
+    window.electron.ipcRenderer.once('uuid-response', handleResponse)
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      secLicense = getDigitMD5Serial(recursiveMD5('2021VMS2025' + secProductId, 10))
+      if (secLicense === dataConfig.licenseKey) {
+        console.log('license valid')
+        setLicenseIs(true)
+      } else {
+        setLicenseIs(false)
+        console.log('license invalid')
+      }
+
+      // await sendMyAPI({
+      //   idDevice: secProductId,
+      //   license: secLicense,
+      //   project: 'VMS | Jakarta'
+      // })
+    } catch (error) {
+      console.error(`Error License`)
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      await handleCekLicenseKey()
+      // setLoadingScreen(false);
+    }
+
+    fetchData()
+  }, [])
 
   const handleNextInput = (
     event: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,
@@ -58,6 +104,17 @@ export const LoginPage: React.FC = () => {
     if (!validateForm()) return
 
     setloadingFormLogin(true)
+
+    if (!licenseIs) {
+      notifications.show({
+        color: 'red',
+        position: 'top-right',
+        title: 'Akses ditolak!',
+        message: `License key tidak valid! Harap hubungi SISTEMPARKIR.COM`
+      })
+      setloadingFormLogin(false)
+      return
+    }
     try {
       const response = await authService.authLogin(formLogin)
       if (response.valid === 1) {
