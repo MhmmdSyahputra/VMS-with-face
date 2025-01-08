@@ -9,7 +9,10 @@ import {
   Flex,
   Center,
   Modal,
-  AspectRatio
+  AspectRatio,
+  Combobox,
+  useCombobox,
+  InputBase
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import React, { useState, useRef, useEffect } from 'react'
@@ -51,6 +54,7 @@ export const AddVisitorPage: React.FC = () => {
     comp_visit: '',
     cp: ''
   })
+  const [searchDes, setSearchDes] = useState('')
   const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
   const [dataDestination, setDataDestination] = useState<{ label: string; value: string }[]>([])
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null)
@@ -341,6 +345,25 @@ export const AddVisitorPage: React.FC = () => {
     }
   }
 
+  const combobox = useCombobox({
+    onDropdownClose: () => {
+      combobox.resetSelectedOption()
+      combobox.focusTarget()
+      setSearchDes('')
+    },
+    onDropdownOpen: () => {
+      combobox.focusSearchInput()
+    }
+  })
+
+  const filteredOptionsDes = dataDestination
+    .filter((item) => item.label.toLowerCase().includes(searchDes.toLowerCase().trim()))
+    .map((item) => (
+      <Combobox.Option value={item.value} key={item.value}>
+        {item.label}
+      </Combobox.Option>
+    ))
+
   useEffect(() => {
     getDestination()
     getReason()
@@ -458,23 +481,55 @@ export const AddVisitorPage: React.FC = () => {
               </Grid.Col>
 
               <Grid.Col span={12} py={0}>
-                <Input.Wrapper
-                  label="DESTINATION"
-                  styles={{ label: { marginBottom: '5px' } }}
-                  error={errorDataConfig.destination}
-                  mb={15}
-                >
-                  <Select
-                    allowDeselect={false}
+                <Input.Wrapper label="DESTINATION" mb={15}>
+                  <Combobox
+                    styles={{
+                      dropdown: {
+                        maxHeight: '200px', // Atur tinggi maksimal dropdown
+                        overflowY: 'auto' // Tambahkan scroll jika konten terlalu panjang
+                      }
+                    }}
+                    store={combobox}
+                    // withinPortal={false}
                     size="md"
-                    radius="md"
-                    placeholder="Pick value"
-                    data={dataDestination}
-                    value={selectedDestination}
-                    onChange={(value) => setSelectedDestination(value)}
-                    onKeyDown={(event) => handleNextInput(event, 5)}
-                    ref={selectRefs[1]} // Menggunakan ref khusus untuk Select
-                  />
+                    onOptionSubmit={(value) => {
+                      setSelectedDestination(value)
+                      combobox.closeDropdown()
+                    }}
+                  >
+                    <Combobox.Target>
+                      <InputBase
+                        component="button"
+                        type="button"
+                        pointer
+                        rightSection={<Combobox.Chevron />}
+                        onClick={() => combobox.toggleDropdown()}
+                        rightSectionPointerEvents="none"
+                        size="md"
+                      >
+                        {selectedDestination ? (
+                          dataDestination.find((item) => item.value === selectedDestination)?.label
+                        ) : (
+                          <Input.Placeholder>Pick value</Input.Placeholder>
+                        )}
+                      </InputBase>
+                    </Combobox.Target>
+
+                    <Combobox.Dropdown>
+                      <Combobox.Search
+                        value={searchDes}
+                        onChange={(event) => setSearchDes(event.currentTarget.value)}
+                        placeholder="Search destination"
+                      />
+                      <Combobox.Options>
+                        {filteredOptionsDes.length > 0 ? (
+                          filteredOptionsDes
+                        ) : (
+                          <Combobox.Empty>Nothing found</Combobox.Empty>
+                        )}
+                      </Combobox.Options>
+                    </Combobox.Dropdown>
+                  </Combobox>
                 </Input.Wrapper>
               </Grid.Col>
 
