@@ -68,3 +68,8 @@ export interface IHistoryVisitor {
   aksi: string
   lantai: string
 }
+export interface IPayloadClearSessionVisitor {
+  idpengunjung: string
+  kodetiket: string
+  userid: string
+}

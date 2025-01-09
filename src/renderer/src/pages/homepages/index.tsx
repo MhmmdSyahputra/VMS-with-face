@@ -129,6 +129,7 @@ export const HomePage: React.FC = () => {
         </Grid.Col>
         <Grid.Col span={9} style={{ height: '90vh' }}>
           <HomeTable
+            refreshData={getDataVisitor}
             error={error!}
             loading={loading}
             headerTable={headerTable!}

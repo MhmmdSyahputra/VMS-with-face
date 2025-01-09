@@ -63,7 +63,7 @@ export const TableEmployee: React.FC<TableVisitorProps> = ({
               <div className="text-end">
                 <Group justify="flex-end">
                   <Link to="/employee/detail/0">
-                    <Button>
+                    <Button w={120}>
                       <TbSearch className="me-2" /> Cari
                     </Button>
                   </Link>

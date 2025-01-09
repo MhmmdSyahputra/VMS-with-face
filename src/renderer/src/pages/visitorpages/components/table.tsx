@@ -12,14 +12,19 @@ import {
   Modal,
   Grid,
   Image,
-  Group
+  Group,
+  Input,
+  CloseButton
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
 import { IHistoryVisitor, Visitor } from '@renderer/interface/visitor.interface'
 import VisitorService from '@renderer/services/visitor.service'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { TbPlus } from 'react-icons/tb'
 import { Link } from 'react-router-dom'
+import useCookie from 'react-use-cookie'
+
 interface HeaderItem {
   label: string
   width: string | number
@@ -30,6 +35,7 @@ interface HeaderTable {
 }
 
 interface TableVisitorProps {
+  refreshData: () => void
   loading: boolean
   error: string
   headerTable: HeaderTable
@@ -40,13 +46,17 @@ export const TableVisitor: React.FC<TableVisitorProps> = ({
   loading,
   error,
   headerTable,
-  visitors
+  visitors,
+  refreshData
 }) => {
   const visitorService = VisitorService()
   const [openedModalDetail, { open: openModalDetail, close: closeModalDetail }] =
     useDisclosure(false)
+  const [searchTerm, setSearchTerm] = useState('')
   const [selectedVisitor, setSelectedVisitor] = useState<Visitor>()
   const [selectedHistory, setSelectedHistory] = useState<IHistoryVisitor[]>([])
+  const [cookieLogin] = useCookie('userLoginCookie')
+  const userLoginCookie = cookieLogin ? JSON.parse(cookieLogin) : null
 
   const handleClickTable = async (data: Visitor): Promise<void> => {
     setSelectedVisitor(data)
@@ -59,19 +69,41 @@ export const TableVisitor: React.FC<TableVisitorProps> = ({
     openModalDetail()
   }
 
-  // const handleClearSesiVisitor = async (data: Visitor): Promise<void> => {
-  //   try {
-  //     const response = await visitorService.historyDataVisitor({
-  //       idpengunjung: data.idpengunjung,
-  //       kodetiket: data.tanggal,
-  //       userid: data.createby
-  //     })
-  //     if (response.valid == 1 || response.valid == '1') {
-  //       // getdataPengunjung()
-        
-  //     }
-  //   } catch (error) {}
-  // }
+  const handleClearSesiVisitor = async (): Promise<void> => {
+    try {
+      const response = await visitorService.clearSessionVisitor({
+        idpengunjung: selectedVisitor!.idpengunjung,
+        kodetiket: selectedVisitor!.kodetiket,
+        userid: userLoginCookie.userid
+      })
+      if (response.valid === 1) {
+        refreshData()
+        closeModalDetail()
+        notifications.show({
+          color: 'green',
+          position: 'top-right',
+          title: 'Berhasil',
+          message: response.msgtext
+        })
+      }
+    } catch (error) {
+      notifications.show({
+        color: 'red',
+        position: 'top-right',
+        title: 'Gagal',
+        message: 'Terjadi kesalahan pada server'
+      })
+    }
+  }
+
+  // Filter visitors based on searchTerm
+  const filteredVisitors = useMemo(() => {
+    if (!searchTerm) return visitors
+
+    return visitors.filter((visitor) =>
+      Object.values(visitor).join(' ').toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [searchTerm, visitors])
 
   return (
     <>
@@ -94,13 +126,29 @@ export const TableVisitor: React.FC<TableVisitorProps> = ({
                   Daftar Pengunjung
                 </Text>
               </div>
-              <div className="text-end">
+              <Group justify="flex-end">
+                <Input
+                  placeholder="Cari Pengunjung..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.currentTarget.value)}
+                  rightSectionPointerEvents="all"
+                  w={'300'}
+                  size="md"
+                  bd={'blue'}
+                  rightSection={
+                    <CloseButton
+                      aria-label="Clear input"
+                      onClick={() => setSearchTerm('')}
+                      style={{ display: searchTerm ? undefined : 'none' }}
+                    />
+                  }
+                />
                 <Link to="/visitor/add">
-                  <Button variant="outline">
+                  <Button variant="outline" size="md">
                     <TbPlus className="me-2" /> Tambah
                   </Button>
                 </Link>
-              </div>
+              </Group>
             </SimpleGrid>
             <ScrollArea>
               <Table verticalSpacing="md" striped highlightOnHover>
@@ -121,7 +169,7 @@ export const TableVisitor: React.FC<TableVisitorProps> = ({
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody style={{ cursor: 'pointer' }}>
-                  {visitors.map((visitor) => (
+                  {filteredVisitors.map((visitor) => (
                     <Table.Tr key={visitor.idpengunjung}>
                       <Table.Td onClick={() => handleClickTable(visitor)}>
                         <Avatar src={visitor.foto1} alt={visitor.nama} size={40} />
@@ -156,7 +204,6 @@ export const TableVisitor: React.FC<TableVisitorProps> = ({
         withCloseButton={false}
         onClose={closeModalDetail}
         size={'55rem'}
-        // title="HISTORY OF VISITOR"
         centered
       >
         <Group justify="space-between" pb={'lg'}>
@@ -204,7 +251,16 @@ export const TableVisitor: React.FC<TableVisitorProps> = ({
           </Grid>
         </Box>
         <Group justify="space-between">
-          <Button radius={'md'} size="lg">
+          <Button
+            radius={'md'}
+            size="lg"
+            disabled={
+              selectedVisitor?.statuspengunjung && parseInt(selectedVisitor?.statuspengunjung) >= 3
+                ? true
+                : false
+            }
+            onClick={() => handleClearSesiVisitor()}
+          >
             CLEAR SESSION
           </Button>
           <Button radius={'md'} size="lg" bg={'red'} onClick={closeModalDetail}>

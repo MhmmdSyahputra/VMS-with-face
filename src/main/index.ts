@@ -42,7 +42,7 @@ function createWindow(): void {
 
 ipcMain.on('print-entrance-ticket', (_, data) => {
   const rWin = new BrowserWindow({
-    show: false,
+    show: true,
     webPreferences: {
       // devTools: false,
       nodeIntegration: true,
@@ -75,7 +75,7 @@ ipcMain.on('print-entrance-ticket', (_, data) => {
 
     setTimeout(() => {
       rWin.webContents.print({
-        silent: true,
+        silent: false,
         margins: {
           marginType: 'printableArea'
         },
@@ -84,7 +84,11 @@ ipcMain.on('print-entrance-ticket', (_, data) => {
         landscape: false,
         header: 'Header of the Page',
         footer: 'Footer of the Page',
-        collate: false
+        collate: false,
+        pageSize: {
+          height: 454,
+          width: 471
+        }
       })
     }, 100) // Sesuaikan timeout sesuai kebutuhan Anda
   })

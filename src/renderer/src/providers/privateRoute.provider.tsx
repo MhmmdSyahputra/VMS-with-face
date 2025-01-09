@@ -13,8 +13,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ Component }) => {
 
   useEffect(() => {
     const checkUserId = async (): Promise<void> => {
-      console.log(userLoginCookie);
-      
       if (userLoginCookie && userLoginCookie.userid) {
         setIsValid(true)
       } else {

@@ -58,6 +58,7 @@ export const VisitorPage: React.FC = () => {
       <Grid grow gutter="xl" style={{ height: '100vh' }}>
         <Grid.Col span={12} style={{ height: '90vh' }} pb={0}>
           <TableVisitor
+            refreshData={getDataVisitor}
             error={error!}
             loading={loading}
             headerTable={headerTable!}

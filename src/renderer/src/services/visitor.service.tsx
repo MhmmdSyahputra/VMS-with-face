@@ -1,5 +1,6 @@
 import {
   IHistoryVisitor,
+  IPayloadClearSessionVisitor,
   IPayloadHistoryVisitor,
   IResponseAddVisitor,
   Visitor
@@ -14,7 +15,9 @@ interface VisitorService {
   getDataVisitor: () => Promise<Visitor[]>
   historyDataVisitor: (data: IPayloadHistoryVisitor) => Promise<IHistoryVisitor[]>
   checkIDCardAkses: (id: string) => Promise<{ valid: number; msgtext: string }>
-  // clearSessionVisitor: (id: string) => Promise<{ valid: number; msgtext: string }>
+  clearSessionVisitor: (
+    data: IPayloadClearSessionVisitor
+  ) => Promise<{ valid: number; msgtext: string }>
 }
 
 const VisitorService = (): VisitorService => {
@@ -78,18 +81,20 @@ const VisitorService = (): VisitorService => {
     }
   }
 
-  // const clearSessionVisitor = async (data: IPayloadHistoryVisitor): Promise<IHistoryVisitor[]> => {
-  //   try {
-  //     const response: AxiosResponse<IHistoryVisitor[]> = await axios.post(
-  //       `${apiUrl}?secretkey=${secretCode}&tipe=clearSessionVisitor`,
-  //       data
-  //     )
-  //     return response.data
-  //   } catch (error) {
-  //     console.error(error)
-  //     throw error
-  //   }
-  // }
+  const clearSessionVisitor = async (
+    data: IPayloadClearSessionVisitor
+  ): Promise<{ valid: number; msgtext: string }> => {
+    try {
+      const response: AxiosResponse<{ valid: number; msgtext: string }> = await axios.post(
+        `${apiUrl}?secretkey=${secretCode}&tipe=clearSessionVisitor`,
+        data
+      )
+      return response.data
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
 
   const checkIDCardAkses = async (id: string): Promise<{ valid: number; msgtext: string }> => {
     try {
@@ -115,7 +120,7 @@ const VisitorService = (): VisitorService => {
     getDataVisitor,
     checkIDCardAkses,
     historyDataVisitor,
-    // clearSessionVisitor
+    clearSessionVisitor
   }
 }
 

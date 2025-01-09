@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Divider, Flex, Grid, Modal, Text, TextInput } from '@mantine/core'
+import { Box, Button, Divider, Flex, Grid, Group, Modal, Text, TextInput } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { FaGear, FaMinus, FaXmark } from 'react-icons/fa6'
 import { FaRegSave } from 'react-icons/fa'
@@ -7,6 +7,7 @@ import { BiWindows } from 'react-icons/bi'
 import classes from './titleBar.module.css'
 import { notifications } from '@mantine/notifications'
 import { IDataConfig } from '@renderer/interface/config.interface'
+import { TbLockCog } from 'react-icons/tb'
 
 export const Titlebar: React.FC = () => {
   const [openedConfig, { open: openConfig, close: closeConfig }] = useDisclosure(false)
@@ -96,9 +97,16 @@ export const Titlebar: React.FC = () => {
     <Box bg="blue.8" className={classes.header}>
       <header>
         <Flex justify="space-between" py={5} align="center" h="100%">
-          <Text color="white" size="sm" ps={10}>
-            Visitor Management System
-          </Text>
+          <Group>
+            <Text color="white" size="sm" ps={10}>
+              Visitor Management System
+            </Text>
+            <Button className="my-auto" leftSection={<TbLockCog />} size="compact-sm" me={20}>
+              <Text fz={'sm'} fw={500}>
+                Trial Version
+              </Text>
+            </Button>
+          </Group>
           <Flex className={classes.buttons}>
             <Button
               onClick={openConfig}
